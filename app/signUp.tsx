@@ -20,6 +20,9 @@ interface AuthScreenProps {
 }
 
 interface Errors {
+  name?: string;
+  surname?: string;
+  phoneNumber?: string;
   email?: string;
   password?: string;
   confirmPassword?: string;
@@ -28,10 +31,14 @@ interface Errors {
 const AuthScreen: React.FC<AuthScreenProps> = ({ isSignup = false }) => {
   const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
+  const [name, setName] = useState<string>("");
+  const [surname, setSurname] = useState<string>("");
+  const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [errors, setErrors] = useState<Errors>({});
+  const [signedUp, setSignedUp] = useState<boolean>(false);
 
   useEffect(() => {
     console.log("hook");
@@ -41,6 +48,23 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ isSignup = false }) => {
     let valid = true;
     let newErrors: Errors = {};
 
+    if (!name) {
+      newErrors.name = "Name is required";
+      valid = false;
+    }
+    if (!surname) {
+      newErrors.surname = "Surname is required";
+      valid = false;
+    }
+
+    if (!phoneNumber) {
+      newErrors.phoneNumber = "Phone number is required";
+      valid = false;
+    } else if (!/^0[6789]\d{8}$/.test(phoneNumber)) {
+      newErrors.phoneNumber =
+        "Please enter a valid South African cell phone number";
+      valid = false;
+    }
     if (!email) {
       newErrors.email = "Email is required";
       valid = false;
@@ -74,27 +98,30 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ isSignup = false }) => {
     await AsyncStorage.setItem("logged", "YES");
     navigation.navigate("index");
   };
-  const signIn = async () => {
-    if (validateInputs()) {
-      try {
-        setLoading(true);
-        const result = await post("/api/login", {
-          Email: email,
-          Password: password,
-        });
-        console.log("Success =>", result);
-        await AsyncStorage.setItem("user", JSON.stringify(result.user));
-        setLoading(false);
 
-        handleLogin();
-      } catch (error) {
-        console.error("Error fetching data:", error);
+  const signUp = async () => {
+    if (validateInputs()) {
+      setLoading(true);
+      try {
+        const result = await post("/api/user/create-user", {
+          name: name,
+          surname: surname,
+          phoneNumber: phoneNumber,
+          email: email,
+          password: password,
+          roleId: 1,
+        });
         setLoading(false);
+        setSignedUp(true);
+        //navigation.navigate("sign");
+      } catch (error) {
+        console.error("Error signing:", error);
       } finally {
         console.log("done");
       }
     }
   };
+
   return (
     <SafeAreaView style={styles.container}>
       <Spinner
@@ -102,7 +129,45 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ isSignup = false }) => {
         textContent={"Loading..."}
         textStyle={styles.spinnerTextStyle}
       />
-      <Text style={styles.title}>{isSignup ? "Sign Up" : "Login"}</Text>
+      <Text style={styles.title}>{"Sign Up"}</Text>
+
+      <TextInput
+        style={styles.input}
+        placeholder="Name"
+        placeholderTextColor={Colors.medium}
+        keyboardType="default"
+        autoCapitalize="none"
+        autoCorrect={false}
+        value={name}
+        onChangeText={setName}
+      />
+      {errors.name && <Text style={styles.errorText}>{errors.name}</Text>}
+
+      <TextInput
+        style={styles.input}
+        placeholder="Surname"
+        placeholderTextColor={Colors.medium}
+        keyboardType="default"
+        autoCapitalize="none"
+        autoCorrect={false}
+        value={surname}
+        onChangeText={setSurname}
+      />
+      {errors.surname && <Text style={styles.errorText}>{errors.surname}</Text>}
+
+      <TextInput
+        style={styles.input}
+        placeholder="Phone Number"
+        placeholderTextColor={Colors.medium}
+        keyboardType="number-pad"
+        autoCapitalize="none"
+        autoCorrect={false}
+        value={phoneNumber}
+        onChangeText={setPhoneNumber}
+      />
+      {errors.phoneNumber && (
+        <Text style={styles.errorText}>{errors.phoneNumber}</Text>
+      )}
 
       <TextInput
         style={styles.input}
@@ -128,29 +193,38 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ isSignup = false }) => {
       {errors.password && (
         <Text style={styles.errorText}>{errors.password}</Text>
       )}
-      {isSignup && (
-        <TextInput
-          style={styles.input}
-          placeholder="Confirm Password"
-          placeholderTextColor={Colors.medium}
-          secureTextEntry
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
-      )}
 
+      <TextInput
+        style={styles.input}
+        placeholder="Confirm Password"
+        placeholderTextColor={Colors.medium}
+        secureTextEntry
+        autoCapitalize="none"
+        autoCorrect={false}
+      />
+      <View style={{ marginBottom: 12, marginTop: 2 }}>
+        {signedUp && (
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("sign");
+            }}
+          >
+            <Text style={styles.successText}>
+              Successfully signed up, please{" "}
+              <Text style={styles.link}>login</Text>
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
       <TouchableOpacity
         style={[styles.button, loading && styles.buttonDisabled]}
-        onPress={signIn}
+        onPress={signUp}
         disabled={loading}
       >
-        {/* <Text style={styles.buttonText}>{isSignup ? "Sign Up" : "Login"}</Text> */}
         {loading ? (
           <ActivityIndicator size="small" color="#FFF" />
         ) : (
-          <Text style={styles.buttonText}>
-            {isSignup ? "Sign Up" : "Login"}
-          </Text>
+          <Text style={styles.buttonText}>{"Sign Up"}</Text>
         )}
       </TouchableOpacity>
 
@@ -173,12 +247,8 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ isSignup = false }) => {
           <Text style={styles.socialButtonText}>Google</Text>
         </TouchableOpacity>
       </View>
-      <TouchableOpacity
-        onPress={() => {
-          navigation.navigate("signUp");
-        }}
-      >
-        <Text style={styles.signUpText}>Sign Up</Text>
+      <TouchableOpacity>
+        <Text style={styles.signUpText}>Login</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -280,11 +350,18 @@ const styles = StyleSheet.create({
     color: "red",
     marginBottom: 10,
   },
+  successText: {
+    color: "#3acc00",
+  },
   buttonDisabled: {
     backgroundColor: Colors.disabled,
   },
   spinnerTextStyle: {
     color: "#FFF",
+  },
+  link: {
+    color: "blue",
+    textDecorationLine: "underline",
   },
 });
 

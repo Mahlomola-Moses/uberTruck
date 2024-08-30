@@ -21,10 +21,13 @@ import { Link } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
-
+import { get, post } from "../services/apiService";
+import Spinner from "react-native-loading-spinner-overlay";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 export type Ref = BottomSheetModal;
 
 const PlaceOrder = forwardRef<Ref>((props, ref) => {
+  const [loading, setLoading] = useState(false);
   const snapPoints = useMemo(() => ["100%"], []);
   const renderBackdrop = useCallback(
     (props: any) => (
@@ -38,17 +41,51 @@ const PlaceOrder = forwardRef<Ref>((props, ref) => {
   );
   const { dismiss } = useBottomSheetModal();
   const [location, setLocation] = useState({
+    address: "",
     latitude: 51.5078788,
     longitude: -0.0877321,
     latitudeDelta: 0.02,
     longitudeDelta: 0.02,
   });
+  const [pickUpLoc, setPickUpLoc] = useState({
+    formatted_address: "",
+    geometry: {},
+  });
+  const [deliveryLoc, setDeliveryLoc] = useState({
+    formatted_address: "",
+    geometry: {},
+  });
+
   const [shipmentSize, setShipmentSize] = useState({
     height: 0,
     length: 0,
     width: 0,
   });
   const [shipmentDesc, setShipmentDesc] = useState("");
+  const placeOrder = async () => {
+    const order = {
+      PickupAddress: pickUpLoc?.formatted_address,
+      PickupLatitude: pickUpLoc?.geometry.l,
+      PickupLongitude: -74.006,
+      DeliveryAddress: "456 Elm St",
+      DeliveryLatitude: 34.0522,
+      DeliveryLongitude: -118.2437,
+      AddressData: "Additional address info",
+    };
+
+    try {
+      setLoading(true);
+      const result = await post("/api/create-shipment", order);
+      console.log("Success =>", result);
+      await AsyncStorage.setItem("orderData", JSON.stringify(result.user));
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setLoading(false);
+    } finally {
+      console.log("done");
+    }
+  };
 
   return (
     <BottomSheetModal
@@ -67,12 +104,6 @@ const PlaceOrder = forwardRef<Ref>((props, ref) => {
           <View style={styles.contentContainer}>
             <View style={styles.toggle}>
               <Text style={styles.subheader}>Order details</Text>
-              {/* <TouchableOpacity style={styles.toggleActive}>
-            <Text style={styles.activeText}>Order details</Text>
-          </TouchableOpacity> */}
-              {/* <TouchableOpacity style={styles.toggleInactive}>
-            <Text style={styles.inactiveText}>Order details</Text>
-          </TouchableOpacity> */}
             </View>
 
             <Text style={styles.subheader}>Pickup Location</Text>
@@ -81,7 +112,7 @@ const PlaceOrder = forwardRef<Ref>((props, ref) => {
               fetchDetails={true}
               onPress={(data, details) => {
                 const point = details?.geometry?.location;
-                console.log("Pickup =>", data, details);
+                console.log("Pickup =>", data, "***", details);
 
                 if (!point) return;
                 setLocation({
@@ -89,6 +120,7 @@ const PlaceOrder = forwardRef<Ref>((props, ref) => {
                   latitude: point.lat,
                   longitude: point.lng,
                 });
+                setPickUpLoc(details);
               }}
               query={{
                 key: process.env.EXPO_PUBLIC_GOOGLE_API_KEY,
@@ -132,6 +164,7 @@ const PlaceOrder = forwardRef<Ref>((props, ref) => {
                   latitude: point.lat,
                   longitude: point.lng,
                 });
+                setDeliveryLoc(details);
               }}
               query={{
                 key: process.env.EXPO_PUBLIC_GOOGLE_API_KEY,
@@ -173,6 +206,12 @@ const PlaceOrder = forwardRef<Ref>((props, ref) => {
                   keyboardType="number-pad"
                   autoCapitalize="none"
                   autoCorrect={false}
+                  onChangeText={(value: string) => {
+                    setShipmentSize({
+                      ...shipmentSize,
+                      height: value ? Number(value) : 0,
+                    });
+                  }}
                 />
               </View>
             </TouchableOpacity>
@@ -186,6 +225,12 @@ const PlaceOrder = forwardRef<Ref>((props, ref) => {
                   keyboardType="number-pad"
                   autoCapitalize="none"
                   autoCorrect={false}
+                  onChangeText={(value: string) => {
+                    setShipmentSize({
+                      ...shipmentSize,
+                      length: value ? Number(value) : 0,
+                    });
+                  }}
                 />
               </View>
             </TouchableOpacity>
@@ -199,6 +244,12 @@ const PlaceOrder = forwardRef<Ref>((props, ref) => {
                   keyboardType="number-pad"
                   autoCapitalize="none"
                   autoCorrect={false}
+                  onChangeText={(value: string) => {
+                    setShipmentSize({
+                      ...shipmentSize,
+                      width: value ? Number(value) : 0,
+                    });
+                  }}
                 />
               </View>
             </TouchableOpacity>
@@ -221,7 +272,13 @@ const PlaceOrder = forwardRef<Ref>((props, ref) => {
               </View>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.button} onPress={() => dismiss()}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => {
+                console.log(pickUpLoc, deliveryLoc);
+                dismiss();
+              }}
+            >
               <Text style={styles.buttonText}>Confirm</Text>
             </TouchableOpacity>
           </View>

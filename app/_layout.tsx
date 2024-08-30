@@ -14,14 +14,13 @@ export default function RootLayoutNav() {
   const navigation = useNavigation();
 
   useEffect(() => {
-    const checkLoginStatus = async () => {
-      const userToken = await AsyncStorage.getItem("logged");
-      setIsLoggedIn(userToken == "YES" ? true : false);
-    };
-
     checkLoginStatus();
   }, []);
-
+  const checkLoginStatus = async () => {
+    const userToken = await AsyncStorage.getItem("logged");
+    console.log("userToken", userToken);
+    setIsLoggedIn(userToken == "YES" ? true : false);
+  };
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
@@ -32,6 +31,12 @@ export default function RootLayoutNav() {
               header: () => <CustomHeader />,
             }}
           />
+          {/* <Stack.Screen
+            name="index"
+            options={{
+              header: () => <CustomHeader />,
+            }}
+          /> */}
         </Stack>
       </BottomSheetModalProvider>
     </GestureHandlerRootView>
