@@ -32,6 +32,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ isSignup = false }) => {
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [errors, setErrors] = useState<Errors>({});
+  const [user, setUser] = useState("not");
 
   useEffect(() => {
     console.log("hook");
@@ -72,7 +73,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ isSignup = false }) => {
   };
   const handleLogin = async () => {
     await AsyncStorage.setItem("logged", "YES");
-    navigation.navigate("index");
+    navigation.navigate("map");
   };
   const signIn = async () => {
     if (validateInputs()) {
@@ -82,13 +83,19 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ isSignup = false }) => {
           Email: email,
           Password: password,
         });
-        console.log("Success =>", result);
-        await AsyncStorage.setItem("user", JSON.stringify(result.user));
-        setLoading(false);
 
-        handleLogin();
+        setLoading(false);
+        if (result) {
+          console.log("Success =>", result);
+          await AsyncStorage.setItem("user", JSON.stringify(result.user));
+          setUser("logged-in");
+          handleLogin();
+        } else {
+          setUser("failed");
+        }
       } catch (error) {
-        console.error("Error fetching data:", error);
+        setUser("failed");
+        console.log("Error fetching data:", error);
         setLoading(false);
       } finally {
         console.log("done");
@@ -138,7 +145,9 @@ const AuthScreen: React.FC<AuthScreenProps> = ({ isSignup = false }) => {
           autoCorrect={false}
         />
       )}
-
+      {user == "failed" && (
+        <Text style={styles.errorText}>Credentials don't match.</Text>
+      )}
       <TouchableOpacity
         style={[styles.button, loading && styles.buttonDisabled]}
         onPress={signIn}

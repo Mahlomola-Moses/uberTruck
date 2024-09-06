@@ -56,7 +56,7 @@ export const del = async (endpoint: string, data = {}) => {
 
 // Error handling
 const handleError = (error: any) => {
-  console.error("API call failed. Error:", error);
+  console.log("API call failed. Error:", error);
   // You can add more error handling logic here, like showing an alert to the user
-  throw error;
+  //throw error;
 };

@@ -1,4 +1,8 @@
+# uberTruck
+
 
 run the application:
 
- npx expo start -c# uberTruck
+ npx expo start -c
+ 
+

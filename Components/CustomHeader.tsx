@@ -7,12 +7,17 @@ import {
   TextInput,
   Image,
 } from "react-native";
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "../constants/Colors";
 import { Link, useNavigation } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { DrawerNavigationProp } from "@react-navigation/drawer";
 
+type DrawerParamList = {
+  index: undefined;
+  settings: undefined;
+};
 const SearchBar = () => (
   <View style={styles.searchContainer}>
     <View style={styles.searchSection}>
@@ -35,12 +40,17 @@ const SearchBar = () => (
 );
 
 const CustomHeader = () => {
-  const navigation = useNavigation();
+  // const navigation = useNavigation();
+  const navigation = useNavigation<DrawerNavigationProp<DrawerParamList>>();
+  const [city, setCity] = useState("searching city..");
 
   const logout = async () => {
     await AsyncStorage.setItem("logged", "NO");
     navigation.navigate("sign");
   };
+  (async () => {
+    setCity((await AsyncStorage.getItem("city")) || "searching city..");
+  })();
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -55,12 +65,15 @@ const CustomHeader = () => {
         <TouchableOpacity style={styles.titleContainer}>
           <Text style={styles.title}>Delivery · Now</Text>
           <View style={styles.locationName}>
-            <Text style={styles.subtitle}>Pretoria</Text>
+            <Text style={styles.subtitle}>{city}</Text>
             {/* <Ionicons name="chevron-down" size={20} color={Colors.primary} /> */}
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.profileButton} onPress={logout}>
+        <TouchableOpacity
+          style={styles.profileButton}
+          onPress={() => navigation.toggleDrawer()}
+        >
           <Ionicons name="person-outline" size={20} color={Colors.primary} />
         </TouchableOpacity>
       </View>
