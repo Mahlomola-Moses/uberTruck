@@ -9,6 +9,7 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  Modal,
 } from "react-native";
 import React, { forwardRef, useCallback, useMemo, useState } from "react";
 import {
@@ -24,10 +25,12 @@ import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplet
 import { get, post } from "../services/apiService";
 import Spinner from "react-native-loading-spinner-overlay";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import OrderCostModal from "@/app/(modal)/orderCost";
 export type Ref = BottomSheetModal;
 
 const PlaceOrder = forwardRef<Ref>((props, ref) => {
   const [loading, setLoading] = useState(false);
+  const [costModel, setCostModel] = useState(false);
   const snapPoints = useMemo(() => ["100%"], []);
   const renderBackdrop = useCallback(
     (props: any) => (
@@ -87,6 +90,15 @@ const PlaceOrder = forwardRef<Ref>((props, ref) => {
     }
   };
 
+  const openModal = () => {
+    setCostModel(true);
+  };
+
+  const closeModal = () => {
+    setCostModel(false);
+    setLoading(true);
+  };
+
   return (
     <BottomSheetModal
       handleIndicatorStyle={{ display: "none" }}
@@ -96,6 +108,18 @@ const PlaceOrder = forwardRef<Ref>((props, ref) => {
       snapPoints={snapPoints}
       backdropComponent={renderBackdrop}
     >
+      <Spinner
+        visible={loading}
+        textContent={"Looking for drivers..."}
+        textStyle={{ color: "white" }}
+        overlayColor="rgba(47, 149, 220, 0.75)"
+      />
+      <OrderCostModal
+        visible={costModel}
+        onClose={closeModal}
+        distance="20"
+        price="45"
+      />
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -276,10 +300,12 @@ const PlaceOrder = forwardRef<Ref>((props, ref) => {
               style={styles.button}
               onPress={() => {
                 console.log(pickUpLoc, deliveryLoc);
-                dismiss();
+                //dismiss();
+
+                openModal();
               }}
             >
-              <Text style={styles.buttonText}>Confirm</Text>
+              <Text style={styles.buttonText}>Place order</Text>
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
