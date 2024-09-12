@@ -11,7 +11,13 @@ import {
   Platform,
   Modal,
 } from "react-native";
-import React, { forwardRef, useCallback, useMemo, useState } from "react";
+import React, {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import {
   BottomSheetBackdrop,
   BottomSheetModal,
@@ -52,11 +58,21 @@ const PlaceOrder = forwardRef<Ref>((props, ref) => {
   });
   const [pickUpLoc, setPickUpLoc] = useState({
     formatted_address: "",
-    geometry: {},
+    geometry: {
+      location: {
+        lat: -25.845246,
+        lng: 28.1912538,
+      },
+    },
   });
   const [deliveryLoc, setDeliveryLoc] = useState({
     formatted_address: "",
-    geometry: {},
+    geometry: {
+      location: {
+        lat: -25.845246,
+        lng: 28.1912538,
+      },
+    },
   });
 
   const [shipmentSize, setShipmentSize] = useState({
@@ -66,27 +82,37 @@ const PlaceOrder = forwardRef<Ref>((props, ref) => {
   });
   const [shipmentDesc, setShipmentDesc] = useState("");
   const placeOrder = async () => {
+    const user: any = await AsyncStorage.getItem("user");
+    console.log("user", user.id);
+
     const order = {
       PickupAddress: pickUpLoc?.formatted_address,
-      PickupLatitude: pickUpLoc?.geometry.l,
-      PickupLongitude: -74.006,
-      DeliveryAddress: "456 Elm St",
-      DeliveryLatitude: 34.0522,
-      DeliveryLongitude: -118.2437,
-      AddressData: "Additional address info",
+      PickupLatitude: pickUpLoc?.geometry.location.lat,
+      PickupLongitude: pickUpLoc?.geometry.location.lng,
+      DeliveryAddress: deliveryLoc?.formatted_address,
+      DeliveryLatitude: deliveryLoc.geometry.location.lat,
+      DeliveryLongitude: deliveryLoc.geometry.location.lng,
+      AddressData: "",
+      description: "",
+      userId: JSON.parse(user)?.id,
+      height: 0,
+      width: 0,
+      length: 0,
     };
-
+    console.log(order);
     try {
       setLoading(true);
-      const result = await post("/api/create-shipment", order);
+      const result = await post("/api/ShipmentTransit/create-shipment", order);
       console.log("Success =>", result);
-      await AsyncStorage.setItem("orderData", JSON.stringify(result.user));
+      //await AsyncStorage.setItem("orderData", JSON.stringify(result.user));
       setLoading(false);
+      openModal();
     } catch (error) {
       console.error("Error fetching data:", error);
       setLoading(false);
     } finally {
       console.log("done");
+      setLoading(false);
     }
   };
 
@@ -96,7 +122,7 @@ const PlaceOrder = forwardRef<Ref>((props, ref) => {
 
   const closeModal = () => {
     setCostModel(false);
-    setLoading(true);
+    //setLoading(true);
   };
 
   return (
@@ -299,10 +325,7 @@ const PlaceOrder = forwardRef<Ref>((props, ref) => {
             <TouchableOpacity
               style={styles.button}
               onPress={() => {
-                console.log(pickUpLoc, deliveryLoc);
-                //dismiss();
-
-                openModal();
+                placeOrder();
               }}
             >
               <Text style={styles.buttonText}>Place order</Text>
