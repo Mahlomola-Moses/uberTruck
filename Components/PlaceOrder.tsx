@@ -32,6 +32,7 @@ import { get, post } from "../services/apiService";
 import Spinner from "react-native-loading-spinner-overlay";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import OrderCostModal from "@/app/(modal)/orderCost";
+import DriverModal from "@/app/(modal)/driver";
 export type Ref = BottomSheetModal;
 
 const PlaceOrder = forwardRef<Ref>((props, ref) => {
@@ -81,6 +82,7 @@ const PlaceOrder = forwardRef<Ref>((props, ref) => {
     width: 0,
   });
   const [shipmentDesc, setShipmentDesc] = useState("");
+  const [showDriver, setShowDriver] = useState(false);
   const placeOrder = async () => {
     const user: any = await AsyncStorage.getItem("user");
     console.log("user", user.id);
@@ -93,11 +95,11 @@ const PlaceOrder = forwardRef<Ref>((props, ref) => {
       DeliveryLatitude: deliveryLoc.geometry.location.lat,
       DeliveryLongitude: deliveryLoc.geometry.location.lng,
       AddressData: "",
-      description: "",
+      description: shipmentDesc,
       userId: JSON.parse(user)?.id,
-      height: 0,
-      width: 0,
-      length: 0,
+      height: shipmentSize.height,
+      width: shipmentSize.width,
+      length: shipmentSize.length,
     };
     console.log(order);
     try {
@@ -122,7 +124,12 @@ const PlaceOrder = forwardRef<Ref>((props, ref) => {
 
   const closeModal = () => {
     setCostModel(false);
-    //setLoading(true);
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      setShowDriver(true);
+      console.log("driver found");
+    }, 5000);
   };
 
   return (
@@ -146,6 +153,8 @@ const PlaceOrder = forwardRef<Ref>((props, ref) => {
         distance="20"
         price="45"
       />
+      <DriverModal visible={showDriver} />
+
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -256,11 +265,14 @@ const PlaceOrder = forwardRef<Ref>((props, ref) => {
                   keyboardType="number-pad"
                   autoCapitalize="none"
                   autoCorrect={false}
-                  onChangeText={(value: string) => {
+                  onEndEditing={(e) => {
+                    const value = e.nativeEvent.text;
                     setShipmentSize({
                       ...shipmentSize,
                       height: value ? Number(value) : 0,
                     });
+                    console.log(shipmentSize);
+                    console.log(e.nativeEvent.text);
                   }}
                 />
               </View>

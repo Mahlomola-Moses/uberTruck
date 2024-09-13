@@ -4,6 +4,7 @@ import { Modal, Text, TouchableOpacity, View, StyleSheet } from "react-native";
 import OrderCost from "./orderCost";
 import Colors from "@/constants/Colors";
 import RNPickerSelect from "react-native-picker-select";
+import DriverModal from "./driver";
 
 interface ModalProps {
   visible: boolean;
@@ -19,50 +20,53 @@ const OrderCostModal: React.FC<ModalProps> = ({
   distance,
 }) => {
   const [paymentMethod, setPaymentMethod] = useState<string>("");
+
   return (
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={visible}
-      onRequestClose={onClose}
-    >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalView}>
-          {/* Price and Distance Display */}
-          <Text style={styles.modalTitle}>Trip Details</Text>
+    <View>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={visible}
+        onRequestClose={onClose}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalView}>
+            {/* Price and Distance Display */}
+            <Text style={styles.modalTitle}>Trip Details</Text>
 
-          <View style={styles.infoContainer}>
-            <View style={styles.infoItem}>
-              <Text style={styles.infoLabel}>Price:</Text>
-              <Text style={styles.infoValue}>R {price}</Text>
+            <View style={styles.infoContainer}>
+              <View style={styles.infoItem}>
+                <Text style={styles.infoLabel}>Price:</Text>
+                <Text style={styles.infoValue}>R {price}</Text>
+              </View>
+
+              <View style={styles.infoItem}>
+                <Text style={styles.infoLabel}>Distance:</Text>
+                <Text style={styles.infoValue}>{distance} km</Text>
+              </View>
             </View>
 
-            <View style={styles.infoItem}>
-              <Text style={styles.infoLabel}>Distance:</Text>
-              <Text style={styles.infoValue}>{distance} km</Text>
+            <View style={styles.pickerContainer}>
+              <Text style={styles.infoLabel}>Payment Method:</Text>
+              <RNPickerSelect
+                onValueChange={(value) => setPaymentMethod(value)}
+                items={[
+                  { label: "Card", value: "card" },
+                  { label: "Cash", value: "cash" },
+                ]}
+                style={pickerSelectStyles}
+                placeholder={{ label: "Select payment method", value: "" }}
+              />
             </View>
-          </View>
 
-          <View style={styles.pickerContainer}>
-            <Text style={styles.infoLabel}>Payment Method:</Text>
-            <RNPickerSelect
-              onValueChange={(value) => setPaymentMethod(value)}
-              items={[
-                { label: "Card", value: "card" },
-                { label: "Cash", value: "cash" },
-              ]}
-              style={pickerSelectStyles}
-              placeholder={{ label: "Select payment method", value: "" }}
-            />
+            {/* Close Button */}
+            <TouchableOpacity style={styles.button} onPress={onClose}>
+              <Text style={styles.buttonText}>Confirm order</Text>
+            </TouchableOpacity>
           </View>
-
-          {/* Close Button */}
-          <TouchableOpacity style={styles.button} onPress={onClose}>
-            <Text style={styles.buttonText}>Confirm order</Text>
-          </TouchableOpacity>
         </View>
-      </View>
-    </Modal>
+      </Modal>
+    </View>
   );
 };
 
