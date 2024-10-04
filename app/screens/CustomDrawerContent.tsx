@@ -12,7 +12,9 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   const navigation = useNavigation();
 
   const handleLogout = async () => {
-    await AsyncStorage.removeItem("logged");
+    await AsyncStorage.clear();
+    const keys = await AsyncStorage.getAllKeys();
+    console.log("loaclol", keys);
     props.navigation.navigate("Login"); // Navigate to the Login screen after logout
   };
 

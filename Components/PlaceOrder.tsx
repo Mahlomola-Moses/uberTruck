@@ -132,6 +132,10 @@ const PlaceOrder = forwardRef<Ref>((props, ref) => {
     }, 5000);
   };
 
+  const closeDriverModal = () => {
+    setShowDriver(false);
+  };
+
   return (
     <BottomSheetModal
       handleIndicatorStyle={{ display: "none" }}
@@ -153,7 +157,7 @@ const PlaceOrder = forwardRef<Ref>((props, ref) => {
         distance="20"
         price="45"
       />
-      <DriverModal visible={showDriver} />
+      <DriverModal visible={showDriver} closeMOdel={closeDriverModal} />
 
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <KeyboardAvoidingView

@@ -9,12 +9,13 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 interface ModalProps {
   visible: boolean;
+  closeMOdel: () => void;
 }
 
-const DriverModal: React.FC<ModalProps> = ({ visible }) => {
+const DriverModal: React.FC<ModalProps> = (prop) => {
   // Example data
   const driverInfo = {
     name: "John Doe",
@@ -25,8 +26,18 @@ const DriverModal: React.FC<ModalProps> = ({ visible }) => {
     truckColor: "Blue",
   };
 
+  const handleLogin = async () => {
+    await AsyncStorage.setItem("state", "Tract_driver");
+    const statx = await AsyncStorage.getItem("state");
+    console.log("Tract_driver", statx);
+  };
   return (
-    <Modal animationType="slide" transparent={true} visible={visible}>
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={prop.visible}
+      onRequestClose={prop.closeMOdel}
+    >
       <View style={styles.modalBackground}>
         <View style={styles.modalContainer}>
           <Text style={styles.modalTitle}>Driver Found</Text>
@@ -46,7 +57,10 @@ const DriverModal: React.FC<ModalProps> = ({ visible }) => {
             <Text style={styles.label}>Color:</Text> {driverInfo.truckColor}
           </Text>
           <TouchableOpacity
-            onPress={() => (visible = false)}
+            onPress={() => {
+              prop.closeMOdel();
+              handleLogin();
+            }}
             style={styles.closeButton}
           >
             <Text style={styles.closeButtonText}>Track Driver</Text>

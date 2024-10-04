@@ -7,9 +7,11 @@ import {
   Platform,
   PermissionsAndroid,
   Keyboard,
+  Image,
 } from "react-native";
 import React, { useState, useRef, useEffect } from "react";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import MapViewDirections from "react-native-maps-directions";
 import Colors from "@/constants/Colors";
 import { useNavigation } from "expo-router";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
@@ -29,13 +31,19 @@ const MapScreen: React.FC = () => {
     latitudeDelta: 0.02,
     longitudeDelta: 0.02,
   });
+  const [destination, setDestinationDestibation] = useState({
+    latitude: -25.845246,
+    longitude: 28.191254,
+    latitudeDelta: 0.02,
+    longitudeDelta: 0.02,
+  });
   const [address, setAddress] = useState<string | null>(null);
-  const openModal = () => {
-    bottomSheetRef.current?.present();
-  };
+  const [state, setState] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log("screena", "map screen");
     const requestLocationPermission = async () => {
+      console.log("location permission");
       if (Platform.OS === "android") {
         const granted = await PermissionsAndroid.request(
           PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
@@ -86,8 +94,20 @@ const MapScreen: React.FC = () => {
     };
 
     requestLocationPermission();
+    checkStatex();
   }, []);
-
+  const openModal = () => {
+    bottomSheetRef.current?.present();
+  };
+  const checkStatex = async () => {
+    const statex = await AsyncStorage.getItem("state");
+    console.log(statex);
+    if (statex) {
+      setState(statex);
+    } else {
+      setState(null); // Handle the case where state is cleared
+    }
+  };
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={{ flex: 1, height: "50%" }}>
@@ -136,20 +156,40 @@ const MapScreen: React.FC = () => {
           region={location}
           showsMyLocationButton={true}
         >
-          {/* <Marker
-            coordinate={{
-              latitude: location.latitude,
-              longitude: location.longitude,
-            }}
-            title="Your Location"
-            description="You are here"
-          /> */}
+          {state == "Tract_driver" && (
+            <>
+              <Marker
+                coordinate={{
+                  latitude: destination.latitude,
+                  longitude: destination.longitude,
+                }}
+                title="Your Location"
+                description="You are here"
+              >
+                <Image
+                  source={require("@/assets/images/truck_driver_logo_transparent.png")}
+                  style={{ width: 50, height: 50 }}
+                />
+              </Marker>
+              <MapViewDirections
+                origin={location}
+                destination={destination}
+                apikey={process.env.EXPO_PUBLIC_GOOGLE_API_KEY || "dasda"}
+                strokeColor="blue"
+                strokeWidth={6}
+              />
+            </>
+          )}
         </MapView>
-        <View style={styles.absoluteBox}>
-          <TouchableOpacity style={styles.button} onPress={openModal}>
-            <Text style={styles.buttonText}>Place order</Text>
-          </TouchableOpacity>
-        </View>
+        {state != "Tract_driver" && (
+          <>
+            <View style={styles.absoluteBox}>
+              <TouchableOpacity style={styles.button} onPress={openModal}>
+                <Text style={styles.buttonText}>Place order</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
       </View>
     </TouchableWithoutFeedback>
   );
