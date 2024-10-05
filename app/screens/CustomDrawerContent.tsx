@@ -37,6 +37,18 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
       <View style={{ flex: 1, justifyContent: "flex-end" }}>
         <DrawerItem label="Logout" onPress={handleLogout} />
       </View>
+      <View style={{ flex: 1, justifyContent: "flex-end" }}>
+        <DrawerItem
+          label="Chat"
+          onPress={() => props.navigation.navigate("Chat")}
+        />
+      </View>
+      <View style={{ flex: 1, justifyContent: "flex-end" }}>
+        <DrawerItem
+          label="Request"
+          onPress={() => props.navigation.navigate("Request")}
+        />
+      </View>
     </DrawerContentScrollView>
   );
 };

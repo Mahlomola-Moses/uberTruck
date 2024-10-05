@@ -11,6 +11,8 @@ import SignUpScreen from "../auth/SignUpScreen"; // Import your Sign-up screen
 import MapScreen from "../screens/MapScreen"; // Import your Map screen
 import CustomDrawerContent from "../screens/CustomDrawerContent"; // Custom Drawer Content
 import CustomHeader from "@/Components/CustomHeader";
+import ChatScreen from "../screens/chat";
+import RequestScreen from "../screens/request";
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -20,7 +22,9 @@ const AuthStack: React.FC = () => (
   <Stack.Navigator>
     <Stack.Screen name="Login" component={LoginScreen} />
     <Stack.Screen name="SignUp" component={SignUpScreen} />
-    <Stack.Screen name="Home" component={MapScreen} />
+    <Stack.Screen name="Map" component={MapScreen} />
+    <Stack.Screen name="Chat" component={ChatScreen} />
+    <Stack.Screen name="Request" component={RequestScreen} />
   </Stack.Navigator>
 );
 
@@ -30,13 +34,24 @@ const AppDrawer: React.FC = () => (
     drawerContent={(props) => <CustomDrawerContent {...props} />}
   >
     <Drawer.Screen
-      name="Home"
+      name="Map"
       component={MapScreen}
       options={{ header: () => <CustomHeader /> }}
     />
     <Drawer.Screen
       name="Login"
       component={LoginScreen}
+      options={{ headerShown: false }}
+    />
+    <Drawer.Screen
+      name="Chat"
+      component={ChatScreen}
+      options={{ header: () => <CustomHeader /> }}
+    />
+
+    <Drawer.Screen
+      name="Request"
+      component={RequestScreen}
       options={{ headerShown: false }}
     />
     {/* Add more screens to the drawer here if needed */}
