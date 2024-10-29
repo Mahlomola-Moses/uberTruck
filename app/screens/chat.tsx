@@ -30,6 +30,7 @@ const ChatScreen = () => {
   const [user, setUser] = useState("User1"); // Replace with dynamic user retrieval
   const [messages, setMessages] = useState<Message[]>([]);
   const [isSending, setIsSending] = useState<boolean>(false);
+  const [showOrderCost, setShowOrderCost] = useState<boolean>(false);
 
   const scrollViewRef = useRef<ScrollView>(null); // Reference to scroll view
 
@@ -95,8 +96,10 @@ const ChatScreen = () => {
   return (
     <>
       <OrderCostModal
-        visible={true}
-        onClose={() => {}}
+        visible={showOrderCost}
+        onClose={() => {
+          setShowOrderCost(false);
+        }}
         distance="20"
         price="45"
       />
@@ -162,7 +165,7 @@ const ChatScreen = () => {
               <Text style={styles.sendButtonText}>Send</Text>
             </TouchableOpacity>
           </View>
-          <Button title="Accept order" />
+          <Button title="Accept order" onPress={() => setShowOrderCost(true)} />
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>
     </>

@@ -13,10 +13,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Stack, useNavigation } from "expo-router";
 interface ModalProps {
   visible: boolean;
-  closeMOdel: () => void;
+  closeModel: () => void;
 }
 
-const DriverModal: React.FC<ModalProps> = (prop) => {
+const DriverModal: React.FC<any> = (prop) => {
   const navigation = useNavigation();
   // Example data
   const driverInfo = {
@@ -31,14 +31,15 @@ const DriverModal: React.FC<ModalProps> = (prop) => {
   const nogotiate = async () => {
     await AsyncStorage.setItem("state", "nogotiate_with_driver");
     const statx = await AsyncStorage.getItem("state");
-    console.log("state", statx);
+    navigation.navigate("Chat");
   };
+
   return (
     <Modal
       animationType="slide"
       transparent={true}
       visible={prop.visible}
-      onRequestClose={prop.closeMOdel}
+      onRequestClose={prop.closeModel}
     >
       <View style={styles.modalBackground}>
         <View style={styles.modalContainer}>
@@ -60,7 +61,7 @@ const DriverModal: React.FC<ModalProps> = (prop) => {
           </Text>
           <TouchableOpacity
             onPress={() => {
-              prop.closeMOdel();
+              prop.closeModel();
               nogotiate();
             }}
             style={styles.closeButton}

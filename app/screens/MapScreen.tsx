@@ -16,14 +16,13 @@ import Colors from "@/constants/Colors";
 import { useNavigation } from "expo-router";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { Ionicons } from "@expo/vector-icons";
-import { BottomSheetModal } from "@gorhom/bottom-sheet";
-import PlaceOrder from "../../Components/PlaceOrder";
 import Geolocation from "react-native-geolocation-service";
 import * as Location from "expo-location";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import PlaceOrder from "../(modal)/placeOrder";
 
 const MapScreen: React.FC = () => {
-  const bottomSheetRef = useRef<BottomSheetModal>(null);
+  const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
   const [location, setLocation] = useState({
     latitude: -25.858458,
@@ -96,9 +95,7 @@ const MapScreen: React.FC = () => {
     requestLocationPermission();
     checkStatex();
   }, []);
-  const openModal = () => {
-    bottomSheetRef.current?.present();
-  };
+
   const checkStatex = async () => {
     const statex = await AsyncStorage.getItem("state");
     console.log(statex);
@@ -108,10 +105,14 @@ const MapScreen: React.FC = () => {
       setState(null); // Handle the case where state is cleared
     }
   };
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={{ flex: 1, height: "50%" }}>
-        <PlaceOrder ref={bottomSheetRef} />
+        <PlaceOrder
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+        />
 
         <GooglePlacesAutocomplete
           placeholder="Search or move the map"
@@ -184,7 +185,12 @@ const MapScreen: React.FC = () => {
         {state != "Tract_driver" && (
           <>
             <View style={styles.absoluteBox}>
-              <TouchableOpacity style={styles.button} onPress={openModal}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => {
+                  setModalVisible(true);
+                }}
+              >
                 <Text style={styles.buttonText}>Place order</Text>
               </TouchableOpacity>
             </View>

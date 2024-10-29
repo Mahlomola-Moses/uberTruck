@@ -104,9 +104,10 @@ const PlaceOrder = forwardRef<Ref>((props, ref) => {
       width: shipmentSize.width,
       length: shipmentSize.length,
     };
-    console.log(order);
+
     try {
       setLoading(true);
+      bottomSheetRef.current?.close();
       const result = await post("/api/ShipmentTransit/create-shipment", order);
       setLoading(false);
       openModal();
@@ -134,7 +135,7 @@ const PlaceOrder = forwardRef<Ref>((props, ref) => {
   };
 
   const closeDriverModal = () => {
-    bottomSheetRef.current?.dismiss();
+    bottomSheetRef.current?.close();
     setShowDriver(false);
     navigation.navigate("Chat");
   };
@@ -154,13 +155,13 @@ const PlaceOrder = forwardRef<Ref>((props, ref) => {
         textStyle={{ color: "white" }}
         overlayColor="rgba(47, 149, 220, 0.75)"
       />
-      <OrderCostModal
+      {/* <OrderCostModal
         visible={costModel}
         onClose={closeModal}
         distance="20"
         price="45"
-      />
-      <DriverModal visible={showDriver} closeMOdel={closeDriverModal} />
+      /> */}
+      <DriverModal visible={showDriver} closeModel={closeDriverModal} />
 
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <KeyboardAvoidingView
