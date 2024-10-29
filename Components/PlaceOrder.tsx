@@ -16,6 +16,7 @@ import React, {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import {
@@ -24,7 +25,7 @@ import {
   useBottomSheetModal,
 } from "@gorhom/bottom-sheet";
 import Colors from "../constants/Colors";
-import { Link } from "expo-router";
+import { Link, useNavigation } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
@@ -36,6 +37,8 @@ import DriverModal from "@/app/(modal)/driver";
 export type Ref = BottomSheetModal;
 
 const PlaceOrder = forwardRef<Ref>((props, ref) => {
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
+  const navigation = useNavigation();
   const [loading, setLoading] = useState(false);
   const [costModel, setCostModel] = useState(false);
   const snapPoints = useMemo(() => ["100%"], []);
@@ -105,8 +108,6 @@ const PlaceOrder = forwardRef<Ref>((props, ref) => {
     try {
       setLoading(true);
       const result = await post("/api/ShipmentTransit/create-shipment", order);
-      console.log("Success =>", result);
-      //await AsyncStorage.setItem("orderData", JSON.stringify(result.user));
       setLoading(false);
       openModal();
     } catch (error) {
@@ -119,7 +120,7 @@ const PlaceOrder = forwardRef<Ref>((props, ref) => {
   };
 
   const openModal = () => {
-    setCostModel(true);
+    setShowDriver(true);
   };
 
   const closeModal = () => {
@@ -133,7 +134,9 @@ const PlaceOrder = forwardRef<Ref>((props, ref) => {
   };
 
   const closeDriverModal = () => {
+    bottomSheetRef.current?.dismiss();
     setShowDriver(false);
+    navigation.navigate("Chat");
   };
 
   return (

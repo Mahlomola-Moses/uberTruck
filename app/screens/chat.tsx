@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -10,147 +10,168 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
+  Button,
 } from "react-native";
 import EmojiSelector, { Categories } from "react-native-emoji-selector";
-import * as signalR from "@microsoft/signalr";
 import Colors from "@/constants/Colors";
+import chatService from "@/services/chatService";
+import OrderCostModal from "../(modal)/orderCost";
+
+interface Message {
+  user: string;
+  message: string;
+}
 
 const ChatScreen = () => {
-  const [messages, setMessages] = useState<string[]>([]);
   const [input, setInput] = useState<string>("");
   const [isEmojiPickerVisible, setEmojiPickerVisible] =
     useState<boolean>(false);
-  const [connection, setConnection] = useState<signalR.HubConnection | null>(
-    null
-  );
+  const [groupName, setGroupName] = useState("General");
+  const [user, setUser] = useState("User1"); // Replace with dynamic user retrieval
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isSending, setIsSending] = useState<boolean>(false);
 
-  // Initialize SignalR connection
+  const scrollViewRef = useRef<ScrollView>(null); // Reference to scroll view
+
   useEffect(() => {
-    const connectToSignalR = async () => {
-      const newConnection = new signalR.HubConnectionBuilder()
-        .withUrl("https://your-server-url/chatHub") // Replace with your SignalR hub URL
-        .withAutomaticReconnect()
-        .build();
+    let connection: any;
 
-      try {
-        await newConnection.start();
-        console.log("SignalR Connected.");
-        setConnection(newConnection);
+    const startConnection = async () => {
+      connection = await chatService.startConnection();
 
-        // Receive message from the SignalR server
-        newConnection.on("ReceiveMessage", (message: string) => {
-          setMessages((prevMessages) => [...prevMessages, message]);
-        });
-      } catch (error) {
-        console.error("SignalR connection failed:", error);
-      }
+      // Listener for receiving messages
+      const messageListener = (receivedUser: string, message: string) => {
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          { user: receivedUser, message },
+        ]);
+      };
+
+      chatService.addReceiveMessageListener(messageListener);
+      chatService.joinChat(groupName);
+
+      return () => {
+        if (connection) {
+          chatService.removeReceiveMessageListener(messageListener); // Clean up listener
+          connection.stop(); // Close SignalR connection
+        }
+      };
     };
 
-    connectToSignalR();
-
-    // Cleanup on component unmount
-    return () => {
-      if (connection) {
-        connection.stop();
-      }
-    };
+    startConnection();
   }, []);
 
-  // Send message to SignalR server
+  useEffect(() => {
+    // Scroll to the bottom when new messages are added
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollToEnd({ animated: true });
+    }
+  }, [messages]);
+
   const sendMessage = async () => {
-    if (input.trim()) {
+    if (input.trim() && !isSending) {
+      console.log(input);
+      setIsSending(true);
       try {
-        if (connection) {
-          await connection.invoke("SendMessage", input); // "SendMessage" is the SignalR hub method
-          setInput("");
-          setEmojiPickerVisible(false); // Close emoji picker after sending a message
-        }
+        await chatService.sendMessage(groupName, user, input);
+        setInput("");
+        setEmojiPickerVisible(false); // Close emoji picker after sending a message
       } catch (error) {
         console.error("Sending message failed:", error);
+      } finally {
+        setIsSending(false);
       }
     }
   };
 
   const addEmoji = (emoji: string) => {
-    setInput(input + emoji); // Append selected emoji to input
+    setInput((prevInput) => prevInput + emoji);
   };
 
   const closeEmojiPicker = () => {
-    setEmojiPickerVisible(false); // Close emoji picker
+    setEmojiPickerVisible(false);
   };
 
   return (
-    <TouchableWithoutFeedback
-      onPress={() => {
-        closeEmojiPicker();
-        Keyboard.dismiss(); // Dismiss keyboard when tapping outside
-      }}
-    >
-      <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        keyboardVerticalOffset={90} // Adjust this value based on the height of your header
+    <>
+      <OrderCostModal
+        visible={true}
+        onClose={() => {}}
+        distance="20"
+        price="45"
+      />
+      <TouchableWithoutFeedback
+        onPress={() => {
+          closeEmojiPicker();
+          Keyboard.dismiss();
+        }}
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Chat</Text>
-        </View>
+        <KeyboardAvoidingView
+          style={styles.container}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={90}
+        >
+          {/* Header */}
+          <View style={styles.header}>
+            <Text style={styles.headerTitle}>Chat</Text>
+          </View>
 
-        {/* Messages */}
-        <ScrollView style={styles.messagesContainer}>
-          {messages.map((message, index) => (
-            <View
-              key={index}
-              style={[
-                styles.messageBubble,
-                index % 2 === 0 ? styles.receivedMessage : styles.sentMessage,
-              ]}
+          {/* Messages */}
+          <ScrollView ref={scrollViewRef} style={styles.messagesContainer}>
+            {messages.map((msg, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.messageBubble,
+                  msg.user === user ? styles.senderText : styles.receiverText,
+                ]}
+              >
+                <Text>{msg.message}</Text>
+              </View>
+            ))}
+          </ScrollView>
+          {/* Emoji Selector */}
+          {isEmojiPickerVisible && (
+            <EmojiSelector
+              onEmojiSelected={addEmoji}
+              columns={8}
+              showSearchBar={false}
+              showHistory={true}
+              category={Categories.all}
+            />
+          )}
+
+          {/* Input Section */}
+          <View style={styles.inputContainer}>
+            <TouchableOpacity
+              onPress={() => setEmojiPickerVisible(!isEmojiPickerVisible)}
+              style={styles.emojiButton}
             >
-              <Text style={styles.messageText}>{message}</Text>
-            </View>
-          ))}
-        </ScrollView>
+              <Text style={styles.emojiButtonText}>😊</Text>
+            </TouchableOpacity>
 
-        {/* Emoji Selector */}
-        {isEmojiPickerVisible && (
-          <EmojiSelector
-            onEmojiSelected={addEmoji}
-            columns={8}
-            showSearchBar={false}
-            showHistory={true}
-            category={Categories.all}
-          />
-        )}
-
-        {/* Input Section */}
-        <View style={styles.inputContainer}>
-          <TouchableOpacity
-            onPress={() => setEmojiPickerVisible(!isEmojiPickerVisible)}
-            style={styles.emojiButton}
-          >
-            <Text style={styles.emojiButtonText}>😊</Text>
-          </TouchableOpacity>
-
-          <TextInput
-            value={input}
-            onChangeText={setInput}
-            placeholder="Type a message"
-            placeholderTextColor={Colors.medium}
-            style={styles.input}
-            onFocus={closeEmojiPicker} // Close emoji picker when focusing on input
-          />
-          <TouchableOpacity onPress={sendMessage} style={styles.sendButton}>
-            <Text style={styles.sendButtonText}>Send</Text>
-          </TouchableOpacity>
-        </View>
-      </KeyboardAvoidingView>
-    </TouchableWithoutFeedback>
+            <TextInput
+              value={input}
+              onChangeText={setInput}
+              placeholder="Type a message"
+              placeholderTextColor={Colors.medium}
+              style={styles.input}
+              onFocus={closeEmojiPicker} // Close emoji picker when focusing on input
+            />
+            <TouchableOpacity onPress={sendMessage} style={styles.sendButton}>
+              <Text style={styles.sendButtonText}>Send</Text>
+            </TouchableOpacity>
+          </View>
+          <Button title="Accept order" />
+        </KeyboardAvoidingView>
+      </TouchableWithoutFeedback>
+    </>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, // Allows the container to fill the screen and be pushed up by the keyboard
+    flex: 1,
     backgroundColor: Colors.light.background,
   },
   header: {
@@ -166,25 +187,29 @@ const styles = StyleSheet.create({
   },
   messagesContainer: {
     flex: 1,
+    alignContent: "center",
     paddingHorizontal: 16,
     backgroundColor: Colors.lightGrey,
   },
   messageBubble: {
-    maxWidth: "70%",
+    maxWidth: "80%",
     borderRadius: 12,
     padding: 10,
     marginVertical: 8,
   },
-  sentMessage: {
-    backgroundColor: Colors.green,
-    alignSelf: "flex-end",
+  senderText: {
+    backgroundColor: Colors.green, // Sender bubble color
+    alignSelf: "flex-end", // Align sender's message to the right
+    borderRadius: 12,
+    padding: 10,
+    marginVertical: 8,
   },
-  receivedMessage: {
-    backgroundColor: Colors.grey,
-    alignSelf: "flex-start",
-  },
-  messageText: {
-    color: Colors.light.text,
+  receiverText: {
+    backgroundColor: Colors.grey, // Receiver bubble color
+    alignSelf: "flex-start", // Align receiver's message to the left
+    borderRadius: 12,
+    padding: 10,
+    marginVertical: 8,
   },
   inputContainer: {
     flexDirection: "row",
@@ -218,6 +243,12 @@ const styles = StyleSheet.create({
   },
   emojiButtonText: {
     fontSize: 24,
+  },
+  messageContainer: {
+    flexDirection: "row", // Horizontal layout
+    justifyContent: "space-between", // Texts at left and right
+    padding: 10,
+    alignItems: "center", // Center vertically
   },
 });
 

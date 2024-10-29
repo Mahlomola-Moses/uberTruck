@@ -74,7 +74,7 @@ const LoginScreen: React.FC = () => {
   };
   const handleLogin = async () => {
     await AsyncStorage.setItem("logged", "YES");
-    navigation.navigate("Home");
+    navigation.navigate("Map");
   };
   const signIn = async () => {
     if (validateInputs()) {

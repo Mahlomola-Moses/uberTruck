@@ -10,12 +10,14 @@ import {
   TouchableOpacity,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Stack, useNavigation } from "expo-router";
 interface ModalProps {
   visible: boolean;
   closeMOdel: () => void;
 }
 
 const DriverModal: React.FC<ModalProps> = (prop) => {
+  const navigation = useNavigation();
   // Example data
   const driverInfo = {
     name: "John Doe",
@@ -26,10 +28,10 @@ const DriverModal: React.FC<ModalProps> = (prop) => {
     truckColor: "Blue",
   };
 
-  const handleLogin = async () => {
-    await AsyncStorage.setItem("state", "Tract_driver");
+  const nogotiate = async () => {
+    await AsyncStorage.setItem("state", "nogotiate_with_driver");
     const statx = await AsyncStorage.getItem("state");
-    console.log("Tract_driver", statx);
+    console.log("state", statx);
   };
   return (
     <Modal
@@ -59,11 +61,11 @@ const DriverModal: React.FC<ModalProps> = (prop) => {
           <TouchableOpacity
             onPress={() => {
               prop.closeMOdel();
-              handleLogin();
+              nogotiate();
             }}
             style={styles.closeButton}
           >
-            <Text style={styles.closeButtonText}>Track Driver</Text>
+            <Text style={styles.closeButtonText}>Negotiate</Text>
           </TouchableOpacity>
         </View>
       </View>
