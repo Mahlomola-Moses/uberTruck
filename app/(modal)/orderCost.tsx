@@ -1,25 +1,31 @@
 // MyModal.tsx
 import React, { useState } from "react";
-import { Modal, Text, TouchableOpacity, View, StyleSheet } from "react-native";
-import OrderCost from "./orderCost";
-import Colors from "@/constants/Colors";
+import {
+  Modal,
+  Text,
+  TouchableOpacity,
+  View,
+  StyleSheet,
+  TextInput,
+} from "react-native";
 import RNPickerSelect from "react-native-picker-select";
-import DriverModal from "./driver";
+import Colors from "@/constants/Colors";
 
 interface ModalProps {
   visible: boolean;
   onClose: () => void;
-  price: string;
+  initialPrice: string;
   distance: string;
 }
 
 const OrderCostModal: React.FC<ModalProps> = ({
   visible,
   onClose,
-  price,
+  initialPrice,
   distance,
 }) => {
   const [paymentMethod, setPaymentMethod] = useState<string>("");
+  const [price, setPrice] = useState<string>(initialPrice);
 
   return (
     <View>
@@ -31,21 +37,28 @@ const OrderCostModal: React.FC<ModalProps> = ({
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalView}>
-            {/* Price and Distance Display */}
+            {/* Modal Title */}
             <Text style={styles.modalTitle}>Trip Details</Text>
 
+            {/* Price and Distance Display */}
             <View style={styles.infoContainer}>
               <View style={styles.infoItem}>
                 <Text style={styles.infoLabel}>Price:</Text>
-                <Text style={styles.infoValue}>R {price}</Text>
+                <TextInput
+                  style={styles.input}
+                  value={price}
+                  onChangeText={setPrice}
+                  keyboardType="numeric"
+                />
               </View>
 
-              <View style={styles.infoItem}>
+              {/* <View style={styles.infoItem}>
                 <Text style={styles.infoLabel}>Distance:</Text>
                 <Text style={styles.infoValue}>{distance} km</Text>
-              </View>
+              </View> */}
             </View>
 
+            {/* Payment Method Picker */}
             <View style={styles.pickerContainer}>
               <Text style={styles.infoLabel}>Payment Method:</Text>
               <RNPickerSelect
@@ -59,9 +72,14 @@ const OrderCostModal: React.FC<ModalProps> = ({
               />
             </View>
 
-            {/* Close Button */}
+            {/* Confirm Order Button */}
             <TouchableOpacity style={styles.button} onPress={onClose}>
-              <Text style={styles.buttonText}>Confirm order</Text>
+              <Text style={styles.buttonText}>Confirm Order</Text>
+            </TouchableOpacity>
+
+            {/* Close Modal Button */}
+            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+              <Text style={styles.closeButtonText}>Close</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -102,6 +120,7 @@ const styles = StyleSheet.create({
   infoItem: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 10,
   },
   infoLabel: {
@@ -113,15 +132,38 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#333",
   },
+  input: {
+    fontSize: 18,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 8,
+    width: 150,
+    textAlign: "right",
+  },
   button: {
     backgroundColor: Colors.primary,
     padding: 12,
     borderRadius: 10,
     width: "100%",
     alignItems: "center",
+    marginTop: 10,
   },
   buttonText: {
     color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  closeButton: {
+    marginTop: 10,
+    backgroundColor: "#ddd",
+    padding: 10,
+    borderRadius: 10,
+    width: "100%",
+    alignItems: "center",
+  },
+  closeButtonText: {
+    color: "#333",
     fontWeight: "bold",
     fontSize: 16,
   },

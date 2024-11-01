@@ -89,8 +89,16 @@ const LoginScreen: React.FC = () => {
         if (result) {
           console.log("Success =>", result);
           await AsyncStorage.setItem("user", JSON.stringify(result.user));
+          await AsyncStorage.setItem("logged", "YES");
+          if (result?.user?.role_Id == 1) {
+            await AsyncStorage.setItem("role", "user");
+            navigation.navigate("Map");
+          } else {
+            await AsyncStorage.setItem("role", "driver");
+            navigation.navigate("Orders");
+          }
           setUser("logged-in");
-          handleLogin();
+          //handleLogin();
         } else {
           setUser("failed");
         }
@@ -185,7 +193,7 @@ const LoginScreen: React.FC = () => {
       </View>
       <TouchableOpacity
         onPress={() => {
-          navigation.navigate("signUp");
+          navigation.navigate("SignUp");
         }}
       >
         <Text style={styles.signUpText}>Sign Up</Text>

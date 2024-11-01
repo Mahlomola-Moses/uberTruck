@@ -1,6 +1,6 @@
-import * as React from "react";
+import React, { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
@@ -13,6 +13,7 @@ import CustomDrawerContent from "../screens/CustomDrawerContent"; // Custom Draw
 import CustomHeader from "@/Components/CustomHeader";
 import ChatScreen from "../screens/chat";
 import RequestScreen from "../screens/request";
+import OrdersScreen from "../screens/Orders";
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -54,13 +55,18 @@ const AppDrawer: React.FC = () => (
       component={RequestScreen}
       options={{ headerShown: false }}
     />
+    <Drawer.Screen
+      name="Orders"
+      component={OrdersScreen}
+      options={{ headerShown: false }}
+    />
     {/* Add more screens to the drawer here if needed */}
   </Drawer.Navigator>
 );
 
 const RootLayoutNav: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = React.useState<boolean>(false);
-
+  const navigation = useNavigation();
   const checkLoginStatus = async () => {
     const userToken = await AsyncStorage.getItem("logged");
     if (userToken) {
@@ -70,10 +76,22 @@ const RootLayoutNav: React.FC = () => {
     }
 
     console.log("User is logged in", userToken);
+    const user: any = await AsyncStorage.getItem("logged");
+    if (JSON.parse(user)?.role_Id == 1) {
+      await AsyncStorage.setItem("role", "user");
+      navigation.navigate("Map");
+    } else {
+      await AsyncStorage.setItem("role", "driver");
+      navigation.navigate("Orders");
+    }
   };
 
   React.useEffect(() => {
     checkLoginStatus();
+  }, []);
+
+  useEffect(() => {
+    console.log("hookeee");
   }, []);
 
   return (

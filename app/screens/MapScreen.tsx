@@ -94,6 +94,12 @@ const MapScreen: React.FC = () => {
 
     requestLocationPermission();
     checkStatex();
+
+    (async () => {
+      const userx: any = await AsyncStorage.getItem("user");
+
+      console.log(JSON.parse(userx).email, "sign in .", JSON.parse(userx));
+    })();
   }, []);
 
   const checkStatex = async () => {

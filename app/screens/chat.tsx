@@ -16,6 +16,7 @@ import EmojiSelector, { Categories } from "react-native-emoji-selector";
 import Colors from "@/constants/Colors";
 import chatService from "@/services/chatService";
 import OrderCostModal from "../(modal)/orderCost";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface Message {
   user: string;
@@ -31,10 +32,24 @@ const ChatScreen = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isSending, setIsSending] = useState<boolean>(false);
   const [showOrderCost, setShowOrderCost] = useState<boolean>(false);
+  const [role, setRole] = useState("");
 
   const scrollViewRef = useRef<ScrollView>(null); // Reference to scroll view
-
+  (async () => {
+    const userx: any = await AsyncStorage.getItem("user");
+    setUser(JSON.parse(userx).email);
+    const role: any = await AsyncStorage.getItem("role");
+    setRole(role);
+    console.log(user, "sign ins .", JSON.parse(user), role);
+  })();
   useEffect(() => {
+    (async () => {
+      const userx: any = await AsyncStorage.getItem("user");
+      setUser(JSON.parse(userx).email);
+      const rolex: any = await AsyncStorage.getItem("role");
+      setRole(rolex);
+      console.log(user, "sign ins .", JSON.parse(user), rolex);
+    })();
     let connection: any;
 
     const startConnection = async () => {
@@ -74,6 +89,7 @@ const ChatScreen = () => {
       console.log(input);
       setIsSending(true);
       try {
+        console.log(groupName, user, input);
         await chatService.sendMessage(groupName, user, input);
         setInput("");
         setEmojiPickerVisible(false); // Close emoji picker after sending a message
@@ -93,6 +109,10 @@ const ChatScreen = () => {
     setEmojiPickerVisible(false);
   };
 
+  const getUserAgentHeader = async () => {
+    const user = await AsyncStorage.getItem("user");
+    return user;
+  };
   return (
     <>
       <OrderCostModal
@@ -118,7 +138,6 @@ const ChatScreen = () => {
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Chat</Text>
           </View>
-
           {/* Messages */}
           <ScrollView ref={scrollViewRef} style={styles.messagesContainer}>
             {messages.map((msg, index) => (
@@ -143,7 +162,6 @@ const ChatScreen = () => {
               category={Categories.all}
             />
           )}
-
           {/* Input Section */}
           <View style={styles.inputContainer}>
             <TouchableOpacity
@@ -165,7 +183,12 @@ const ChatScreen = () => {
               <Text style={styles.sendButtonText}>Send</Text>
             </TouchableOpacity>
           </View>
-          <Button title="Accept order" onPress={() => setShowOrderCost(true)} />
+          {role == "driver" && (
+            <Button
+              title="Accept order"
+              onPress={() => setShowOrderCost(true)}
+            />
+          )}
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>
     </>
