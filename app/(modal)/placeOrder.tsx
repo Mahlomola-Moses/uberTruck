@@ -18,7 +18,7 @@ import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplet
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Spinner from "react-native-loading-spinner-overlay";
 import DriverModal from "@/app/(modal)/driver"; // Replace with your actual driver modal import
-import { post } from "../../services/apiService";
+import { get, post } from "../../services/apiService";
 
 interface PlaceOrderProps {
   visible: boolean;
@@ -53,6 +53,17 @@ const PlaceOrder: React.FC<PlaceOrderProps> = ({ visible, onClose }) => {
     width: 0,
   });
   const [shipmentDesc, setShipmentDesc] = useState("");
+  const fetchData = async (id: number) => {
+    try {
+      const response = await get(
+        `/api/ShipmentTransit/shipment-has-driver/${id}`
+      );
+      console.log(response);
+      return response;
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
 
   const placeOrder = async () => {
     const user = await AsyncStorage.getItem("user");
@@ -74,9 +85,28 @@ const PlaceOrder: React.FC<PlaceOrderProps> = ({ visible, onClose }) => {
     try {
       console.log("order", order);
       setLoading(true);
-      await post("/api/ShipmentTransit/create-shipment", order);
-      setLoading(false);
-      setShowDriver(true);
+      const results = await post("/api/ShipmentTransit/create-shipment", order);
+      await AsyncStorage.setItem("contextOrder", JSON.stringify(results));
+      console.log("dsts", results?.shipmentTransit?.id);
+
+      // Start polling
+      const interval: any = setInterval(async () => {
+        const rs = await fetchData(results?.shipmentTransit?.id);
+        if (rs == true) {
+          clearInterval(interval);
+          setLoading(false);
+          setShowDriver(true);
+        }
+      }, 2000);
+
+      // Stop polling after 2 minutes (120,000 ms)
+      setTimeout(() => {
+        clearInterval(interval);
+        setLoading(false);
+      }, 60000);
+
+      //   setLoading(false);
+      //   setShowDriver(true);
     } catch (error) {
       console.error("Error creating order:", error);
       setLoading(false);
