@@ -80,11 +80,15 @@ const LoginScreen: React.FC = () => {
     if (validateInputs()) {
       try {
         setLoading(true);
+        console.log({
+          Email: email,
+          Password: password,
+        });
         const result = await post("/api/login", {
           Email: email,
           Password: password,
         });
-
+        console.log(result);
         setLoading(false);
         if (result) {
           console.log("Success =>", result);

@@ -5,7 +5,10 @@ interface Message {
   user: string;
   message: string;
 }
-
+const createBasicAuthHeader = (username: string, password: string) => {
+  const token = btoa(`${username}:${password}`);
+  return `Basic ${token}`;
+};
 class ChatService {
   private hubConnection: HubConnection;
   private messagesSubject: BehaviorSubject<Message[]> = new BehaviorSubject<
@@ -15,7 +18,12 @@ class ChatService {
 
   constructor() {
     this.hubConnection = new HubConnectionBuilder()
-      .withUrl("http://192.168.1.110:5000/chatHub")
+      .withUrl("http://ubertrucking-001-site1.atempurl.com/chatHub", {
+        withCredentials: true,
+        headers: {
+          Authorization: createBasicAuthHeader("11200974", "60-dayfreetrial"), // If you are using Bearer token authentication
+        },
+      })
       .build();
   }
 

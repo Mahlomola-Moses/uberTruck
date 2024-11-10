@@ -11,12 +11,15 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Button,
+  ActivityIndicator,
 } from "react-native";
 import EmojiSelector, { Categories } from "react-native-emoji-selector";
 import Colors from "@/constants/Colors";
 import chatService from "@/services/chatService";
 import OrderCostModal from "../(modal)/orderCost";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import OrderDetailsModal from "../(modal)/orderDetails";
+import { get } from "@/services/apiService";
 
 interface Message {
   user: string;
@@ -27,31 +30,62 @@ const ChatScreen = () => {
   const [input, setInput] = useState<string>("");
   const [isEmojiPickerVisible, setEmojiPickerVisible] =
     useState<boolean>(false);
-  const [groupName, setGroupName] = useState("General");
-  const [user, setUser] = useState("User1"); // Replace with dynamic user retrieval
+  const [groupName, setGroupName] = useState(`General`);
+  const [user, setUser] = useState<string | null>(null); // Start with null
   const [messages, setMessages] = useState<Message[]>([]);
   const [isSending, setIsSending] = useState<boolean>(false);
   const [showOrderCost, setShowOrderCost] = useState<boolean>(false);
-  const [role, setRole] = useState("");
+  const [showOrderDetails, setShowOrderDetails] = useState<boolean>(false);
+  const [role, setRole] = useState<string | null>(null); // Start with null
+  const [isLoading, setIsLoading] = useState<boolean>(true); // Loading state
+  const [shipmentTransit, setShipmentTransit] = useState<any>({});
+  const [checkShipment, setCheckShipment] = useState<boolean>(true); //
+  let interval: any;
+  const scrollViewRef = useRef<ScrollView>(null);
 
-  const scrollViewRef = useRef<ScrollView>(null); // Reference to scroll view
-  (async () => {
-    const userx: any = await AsyncStorage.getItem("user");
-    setUser(JSON.parse(userx).email);
-    const role: any = await AsyncStorage.getItem("role");
-    setRole(role);
-    console.log(user, "sign ins .", JSON.parse(user), role);
-  })();
+  const getTripDetails = async () => {
+    const contextOrder: any = await AsyncStorage.getItem("contextOrder");
+
+    const orderDetails: any = JSON.parse(contextOrder);
+    try {
+      const url = `/api/ShipmentTransit/shipment-has-driver/${(orderDetails?.shipmentTransit?.id).toString()}`;
+      console.log(url, "***", orderDetails.shipmentTransit.id);
+      const results = await get(url);
+      if (results) {
+        await AsyncStorage.setItem(
+          "shipmentTransit",
+          JSON.stringify(results?.shipmentTransit)
+        );
+        setShipmentTransit(results?.shipmentTransit);
+      } else {
+        alert("The driver hasn't accepted the negotiated price yet");
+      }
+      setShowOrderDetails(true);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
-    (async () => {
-      const userx: any = await AsyncStorage.getItem("user");
-      setUser(JSON.parse(userx).email);
-      const rolex: any = await AsyncStorage.getItem("role");
-      setRole(rolex);
-      console.log(user, "sign ins .", JSON.parse(user), rolex);
-    })();
-    let connection: any;
+    const fetchUserData = async () => {
+      try {
+        const userx = await AsyncStorage.getItem("user");
+        const rolex = await AsyncStorage.getItem("role");
 
+        if (userx && rolex) {
+          setUser(JSON.parse(userx).email);
+          setRole(rolex);
+        }
+      } catch (error) {
+        console.error("Failed to retrieve user data:", error);
+      } finally {
+        setIsLoading(false); // Set loading to false after data retrieval
+      }
+    };
+
+    fetchUserData();
+    setMessages([]);
+    let connection: any;
     const startConnection = async () => {
       connection = await chatService.startConnection();
 
@@ -68,11 +102,22 @@ const ChatScreen = () => {
 
       return () => {
         if (connection) {
-          chatService.removeReceiveMessageListener(messageListener); // Clean up listener
           connection.stop(); // Close SignalR connection
         }
       };
     };
+
+    // if (role != "driver" && checkShipment) {
+    //   interval = setInterval(async () => {
+    //     const rs: any = await getTripDetails();
+    //     if (rs?.hasDriver == true) {
+    //       clearInterval(interval);
+    //       setCheckShipment(false);
+    //     }
+    //   }, 2000);
+    // } else {
+    //   clearInterval(interval);
+    // }
 
     startConnection();
   }, []);
@@ -86,11 +131,9 @@ const ChatScreen = () => {
 
   const sendMessage = async () => {
     if (input.trim() && !isSending) {
-      console.log(input);
       setIsSending(true);
       try {
-        console.log(groupName, user, input);
-        await chatService.sendMessage(groupName, user, input);
+        await chatService.sendMessage(groupName, user as string, input);
         setInput("");
         setEmojiPickerVisible(false); // Close emoji picker after sending a message
       } catch (error) {
@@ -109,19 +152,38 @@ const ChatScreen = () => {
     setEmojiPickerVisible(false);
   };
 
-  const getUserAgentHeader = async () => {
-    const user = await AsyncStorage.getItem("user");
-    return user;
-  };
+  if (isLoading) {
+    // Show a loading spinner while fetching user data
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+      </View>
+    );
+  }
+
+  if (!user || !role) {
+    // Show an error message if user or role data couldn't be loaded
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>
+          Failed to load user data. Please try again.
+        </Text>
+      </View>
+    );
+  }
+
   return (
     <>
       <OrderCostModal
         visible={showOrderCost}
-        onClose={() => {
-          setShowOrderCost(false);
-        }}
+        onClose={() => setShowOrderCost(false)}
         distance="20"
         price="45"
+      />
+      <OrderDetailsModal
+        visible={showOrderDetails}
+        onClose={() => setShowOrderDetails(false)}
+        OrderDetails={shipmentTransit}
       />
       <TouchableWithoutFeedback
         onPress={() => {
@@ -183,11 +245,15 @@ const ChatScreen = () => {
               <Text style={styles.sendButtonText}>Send</Text>
             </TouchableOpacity>
           </View>
-          {role == "driver" && (
+
+          {role === "driver" && (
             <Button
               title="Accept order"
               onPress={() => setShowOrderCost(true)}
             />
+          )}
+          {role != "driver" && (
+            <Button title="Accept order" onPress={() => getTripDetails()} />
           )}
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>
@@ -199,6 +265,20 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.light.background,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  errorText: {
+    color: Colors.danger,
+    fontSize: 16,
   },
   header: {
     padding: 16,
@@ -213,7 +293,6 @@ const styles = StyleSheet.create({
   },
   messagesContainer: {
     flex: 1,
-    alignContent: "center",
     paddingHorizontal: 16,
     backgroundColor: Colors.lightGrey,
   },
@@ -224,15 +303,15 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   senderText: {
-    backgroundColor: Colors.green, // Sender bubble color
-    alignSelf: "flex-end", // Align sender's message to the right
+    backgroundColor: Colors.green,
+    alignSelf: "flex-end",
     borderRadius: 12,
     padding: 10,
     marginVertical: 8,
   },
   receiverText: {
-    backgroundColor: Colors.grey, // Receiver bubble color
-    alignSelf: "flex-start", // Align receiver's message to the left
+    backgroundColor: Colors.grey,
+    alignSelf: "flex-start",
     borderRadius: 12,
     padding: 10,
     marginVertical: 8,
@@ -269,12 +348,6 @@ const styles = StyleSheet.create({
   },
   emojiButtonText: {
     fontSize: 24,
-  },
-  messageContainer: {
-    flexDirection: "row", // Horizontal layout
-    justifyContent: "space-between", // Texts at left and right
-    padding: 10,
-    alignItems: "center", // Center vertically
   },
 });
 

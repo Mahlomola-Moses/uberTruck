@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -11,53 +11,80 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "expo-router";
-
-const requests = [
-  {
-    id: "1",
-    name: "Shipment #001",
-    location: "Midrand",
-    status: "Pending",
-    distance: "15 miles",
-    weight: "500 kg",
-    description: "Electronic goods",
-  },
-  // {
-  //   id: "2",
-  //   name: "Shipment #002",
-  //   location: "Centurion",
-  //   status: "Shipped",
-  //   distance: "100 miles",
-  //   weight: "1200 kg",
-  //   description: "Furniture",
-  // },
-  // {
-  //   id: "3",
-  //   name: "Shipment #003",
-  //   location: "PretoriaS",
-  //   status: "Delivered",
-  //   distance: "50 miles",
-  //   weight: "700 kg",
-  //   description: "Clothing",
-  // },
-  // Add more requests as needed
-];
+import { get, post } from "../../services/apiService";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useFocusEffect } from "@react-navigation/native";
 
 const OrdersScreen = () => {
+  const [requests, setRequests] = useState([]);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
-  const handleRequestPress = (request: any) => {
+  const [userId, setUserId] = useState<string | null>(null);
+  const handleRequestPress = async (request: any) => {
     setSelectedRequest(request);
     setModalVisible(true);
   };
 
+  const acceptRequest = async (id: any) => {
+    try {
+      const data = {
+        shipmentId: Number(id),
+        driverId: Number(userId),
+      };
+      const results = await post(
+        "/api/ShipmentTransit/update-shipment-driver",
+        data
+      );
+      await AsyncStorage.setItem("shipmentId", id.toString());
+      fetchRequests();
+      setModalVisible(false);
+      navigation.navigate("Chat");
+    } catch (error) {}
+  };
+  const fetchRequests = async () => {
+    try {
+      const url = `/api/ShipmentTransit/available-shipments/${userId}`;
+      console.log(url);
+      const response = await get(url);
+
+      setRequests(response?.shipmentTransits);
+    } catch (error) {
+      console.error("Error fetching requests:", error);
+    }
+  };
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const userx: any = await AsyncStorage.getItem("user");
+        console.log("ordeers page user object ", JSON.parse(userx));
+        if (userx) {
+          setUserId(JSON.parse(userx).id);
+          console.log("ordeers page user id ", userId);
+        }
+      } catch (error) {
+        console.error("Failed to retrieve user data:", error);
+      }
+    };
+
+    fetchUserData();
+    fetchRequests(); // Call the fetch function
+  }, [userId]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchRequests();
+    }, [userId])
+  );
+
   const renderRequest = ({ item }) => (
     <TouchableOpacity onPress={() => handleRequestPress(item)}>
       <View style={styles.requestCard}>
-        <Text style={styles.requestTitle}>{item.name}</Text>
-        <Text style={styles.requestLocation}>Location: {item.location}</Text>
-        <Text style={styles.requestStatus}>Status: {item.status}</Text>
+        <Text style={styles.requestTitle}>Shipment #{item.id}</Text>
+        <Text style={styles.requestLocation}>
+          Location: {item.deliveryAddress}
+        </Text>
+        <Text style={styles.requestStatus}>Status: Pending</Text>
       </View>
     </TouchableOpacity>
   );
@@ -71,6 +98,9 @@ const OrdersScreen = () => {
         keyExtractor={(item) => item.id}
         renderItem={renderRequest}
         contentContainerStyle={styles.list}
+        ListEmptyComponent={
+          <Text style={styles.emptyMessage}>No requests found</Text>
+        }
       />
 
       {/* Modal for viewing request details */}
@@ -84,29 +114,28 @@ const OrdersScreen = () => {
           <View style={styles.modalView}>
             {selectedRequest && (
               <>
-                <Text style={styles.modalTitle}>{selectedRequest.name}</Text>
-                <Text style={styles.modalDetail}>
-                  Location: {selectedRequest.location}
+                <Text style={styles.modalTitle}>
+                  Shipment #{selectedRequest?.id}
                 </Text>
                 <Text style={styles.modalDetail}>
-                  Status: {selectedRequest.status}
+                  Location: {selectedRequest?.deliveryAddress}
                 </Text>
-                <Text style={styles.modalDetail}>
+                <Text style={styles.modalDetail}>Status:Pending</Text>
+                {/* <Text style={styles.modalDetail}>
                   Distance: {selectedRequest.distance}
                 </Text>
                 <Text style={styles.modalDetail}>
                   Weight: {selectedRequest.weight}
-                </Text>
+                </Text> */}
                 <Text style={styles.modalDetail}>
-                  Description: {selectedRequest.description}
+                  Description: {selectedRequest?.description}
                 </Text>
               </>
             )}
             <Button
               title="Accept and negotiate"
               onPress={() => {
-                setModalVisible(false);
-                navigation.navigate("Chat");
+                acceptRequest(selectedRequest?.id);
               }}
             />
           </View>
@@ -206,6 +235,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.medium,
     marginBottom: 5,
+  },
+  emptyMessage: {
+    textAlign: "center",
+    marginTop: 20,
+    fontSize: 16,
+    color: "gray",
   },
 });
 

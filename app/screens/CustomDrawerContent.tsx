@@ -10,13 +10,32 @@ import { useNavigation } from "@react-navigation/native";
 
 const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   const navigation = useNavigation();
+  const [role, setRole] = React.useState("");
 
   const handleLogout = async () => {
     await AsyncStorage.clear();
     const keys = await AsyncStorage.getAllKeys();
     console.log("loaclol", keys);
-    props.navigation.navigate("Login"); // Navigate to the Login screen after logout
+    props.navigation.navigate("Login");
   };
+  const checkStates = async () => {
+    const rolex = await AsyncStorage.getItem("role");
+    if (rolex) {
+      setRole(rolex);
+    }
+  };
+
+  const home = async () => {
+    if (role == "driver") {
+      props.navigation.navigate("Orders");
+    } else {
+      props.navigation.navigate("Map");
+    }
+    console.log("role", role);
+  };
+  React.useEffect(() => {
+    checkStates();
+  }, [role]);
 
   return (
     <DrawerContentScrollView {...props}>
@@ -27,12 +46,14 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
           }} // Replace with your profile image URL
           style={styles.profileImage}
         />
-        <Text style={styles.profileName}>John Doe</Text>
+        <Text style={styles.profileName}>{role}</Text>
         {/* Replace with dynamic name if needed */}
       </View>
       <DrawerItem
         label="Home"
-        onPress={() => props.navigation.navigate("Map")}
+        onPress={() => {
+          home;
+        }}
       />
       <View style={{ flex: 1, justifyContent: "flex-end" }}>
         <DrawerItem label="Logout" onPress={handleLogout} />
@@ -43,12 +64,14 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
           onPress={() => props.navigation.navigate("Chat")}
         />
       </View>
-      <View style={{ flex: 1, justifyContent: "flex-end" }}>
-        <DrawerItem
-          label="Request"
-          onPress={() => props.navigation.navigate("Request")}
-        />
-      </View>
+      {role == "driver" && (
+        <View style={{ flex: 1, justifyContent: "flex-end" }}>
+          <DrawerItem
+            label="Request"
+            onPress={() => props.navigation.navigate("Request")}
+          />
+        </View>
+      )}
     </DrawerContentScrollView>
   );
 };

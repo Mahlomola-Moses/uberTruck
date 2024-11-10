@@ -25,7 +25,8 @@ const AuthStack: React.FC = () => (
     <Stack.Screen name="SignUp" component={SignUpScreen} />
     <Stack.Screen name="Map" component={MapScreen} />
     <Stack.Screen name="Chat" component={ChatScreen} />
-    <Stack.Screen name="Request" component={RequestScreen} />
+    <Stack.Screen name="Request" component={OrdersScreen} />
+    <Stack.Screen name="Orders" component={OrdersScreen} />
   </Stack.Navigator>
 );
 
@@ -35,15 +36,16 @@ const AppDrawer: React.FC = () => (
     drawerContent={(props) => <CustomDrawerContent {...props} />}
   >
     <Drawer.Screen
-      name="Map"
-      component={MapScreen}
-      options={{ header: () => <CustomHeader /> }}
-    />
-    <Drawer.Screen
       name="Login"
       component={LoginScreen}
       options={{ headerShown: false }}
     />
+    <Drawer.Screen
+      name="Map"
+      component={MapScreen}
+      options={{ header: () => <CustomHeader /> }}
+    />
+
     <Drawer.Screen
       name="Chat"
       component={ChatScreen}
@@ -52,7 +54,7 @@ const AppDrawer: React.FC = () => (
 
     <Drawer.Screen
       name="Request"
-      component={RequestScreen}
+      component={OrdersScreen}
       options={{ headerShown: false }}
     />
     <Drawer.Screen
@@ -60,12 +62,14 @@ const AppDrawer: React.FC = () => (
       component={OrdersScreen}
       options={{ headerShown: false }}
     />
+
     {/* Add more screens to the drawer here if needed */}
   </Drawer.Navigator>
 );
 
 const RootLayoutNav: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = React.useState<boolean>(false);
+  const [appKey, setAppKey] = useState<number>(0);
   const navigation = useNavigation();
   const checkLoginStatus = async () => {
     const userToken = await AsyncStorage.getItem("logged");
@@ -87,8 +91,24 @@ const RootLayoutNav: React.FC = () => {
   };
 
   React.useEffect(() => {
+    const handleNavigation = async () => {
+      const user: any = await AsyncStorage.getItem("logged");
+      if (isLoggedIn) {
+        if (JSON.parse(user)?.role_Id == 1) {
+          await AsyncStorage.setItem("role", "user");
+          navigation.navigate("Map");
+        } else {
+          await AsyncStorage.setItem("role", "driver");
+          navigation.navigate("Orders");
+        }
+      }
+    };
+    handleNavigation();
+  }, [isLoggedIn]);
+
+  React.useEffect(() => {
     checkLoginStatus();
-  }, []);
+  }, [isLoggedIn]);
 
   useEffect(() => {
     console.log("hookeee");

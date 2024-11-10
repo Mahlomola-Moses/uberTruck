@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "ubertruck",
-    "slug": "ubertruck",
+    "slug": "deliverooClone",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -15,14 +15,14 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.mahlomola.ubertruck"
+      "bundleIdentifier": "com.mahlomola.deliverooClone"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.mahlomola.ubertruck"
+      "package": "com.mahlomola.deliverooClone"
     },
     "web": {
       "bundler": "metro",

@@ -1,5 +1,5 @@
 // MyModal.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   Text,
@@ -15,38 +15,41 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 interface ModalProps {
   visible: boolean;
   onClose: () => void;
-  initialPrice: string;
-  distance: string;
+  OrderDetails: any;
 }
 
-const OrderCostModal: React.FC<ModalProps> = ({
+const OrderDetailsModal: React.FC<ModalProps> = ({
   visible,
   onClose,
-  initialPrice,
-  distance,
+  OrderDetails,
 }) => {
   const [paymentMethod, setPaymentMethod] = useState<string>("");
-  const [price, setPrice] = useState<string>(initialPrice);
-  const submitTripDetails = async () => {
+  const [data, setData] = useState<any>(OrderDetails);
+
+  const getTripDetails = async () => {
+    const shipmentTransit: any = await AsyncStorage.getItem("shipmentTransit");
+
+    const orderDetails: any = JSON.parse(shipmentTransit);
+    setData(orderDetails);
+  };
+  const userAccept = async () => {
     try {
-      console.log(paymentMethod, price);
-      const shipId: any = await AsyncStorage.getItem("shipmentId");
-      const data = {
-        shipmentId: Number(shipId), //order in context
-        price: price,
-        paymentMethod: paymentMethod,
-        distance: 0,
-      };
-      const results = await post(
-        "/api/ShipmentTransit/create-transaction",
-        data
-      );
+      const url = `/api/ShipmentTransit/update-shipment-transaction-cost/${(OrderDetails?.id).toString()}`;
+      console.log(url, OrderDetails);
+      const results = await get(url);
+      console.log("lets", results);
+      if (results) {
+      }
+      alert("Thanks for your order!");
       onClose();
-      console.log(results);
     } catch (error) {
       console.log(error);
     }
   };
+  useEffect(() => {
+    console.log(OrderDetails, "hello", data);
+    //getTripDetails();
+  });
   return (
     <View>
       <Modal
@@ -66,34 +69,25 @@ const OrderCostModal: React.FC<ModalProps> = ({
                 <Text style={styles.infoLabel}>Price:</Text>
                 <TextInput
                   style={styles.input}
-                  value={price}
-                  onChangeText={setPrice}
-                  keyboardType="numeric"
+                  value={OrderDetails?.price?.toString()}
+                  editable={false}
                 />
               </View>
-
-              {/* <View style={styles.infoItem}>
-                <Text style={styles.infoLabel}>Distance:</Text>
-                <Text style={styles.infoValue}>{distance} km</Text>
-              </View> */}
             </View>
 
-            {/* Payment Method Picker */}
-            <View style={styles.pickerContainer}>
-              <Text style={styles.infoLabel}>Payment Method:</Text>
-              <RNPickerSelect
-                onValueChange={(value) => setPaymentMethod(value)}
-                items={[
-                  { label: "Card", value: "card" },
-                  { label: "Cash", value: "cash" },
-                ]}
-                style={pickerSelectStyles}
-                placeholder={{ label: "Select payment method", value: "" }}
-              />
+            <View style={styles.infoContainer}>
+              <View style={styles.infoItem}>
+                <Text style={styles.infoLabel}>Payment method:</Text>
+                <TextInput
+                  style={styles.input}
+                  value={OrderDetails?.paymentMethod}
+                  editable={false}
+                />
+              </View>
             </View>
 
             {/* Confirm Order Button */}
-            <TouchableOpacity style={styles.button} onPress={submitTripDetails}>
+            <TouchableOpacity style={styles.button} onPress={userAccept}>
               <Text style={styles.buttonText}>Confirm Order</Text>
             </TouchableOpacity>
 
@@ -220,4 +214,4 @@ const pickerSelectStyles = StyleSheet.create({
   },
 });
 
-export default OrderCostModal;
+export default OrderDetailsModal;

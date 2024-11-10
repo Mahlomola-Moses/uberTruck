@@ -92,7 +92,7 @@ const PlaceOrder: React.FC<PlaceOrderProps> = ({ visible, onClose }) => {
       // Start polling
       const interval: any = setInterval(async () => {
         const rs = await fetchData(results?.shipmentTransit?.id);
-        if (rs == true) {
+        if (rs.hasDriver == true) {
           clearInterval(interval);
           setLoading(false);
           setShowDriver(true);
