@@ -52,7 +52,8 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
       <DrawerItem
         label="Home"
         onPress={() => {
-          home;
+          console.log("Press");
+          home();
         }}
       />
       <View style={{ flex: 1, justifyContent: "flex-end" }}>

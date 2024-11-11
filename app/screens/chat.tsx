@@ -20,6 +20,7 @@ import OrderCostModal from "../(modal)/orderCost";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import OrderDetailsModal from "../(modal)/orderDetails";
 import { get } from "@/services/apiService";
+import { useNavigation } from "expo-router";
 
 interface Message {
   user: string;
@@ -27,6 +28,7 @@ interface Message {
 }
 
 const ChatScreen = () => {
+  const navigation = useNavigation();
   const [input, setInput] = useState<string>("");
   const [isEmojiPickerVisible, setEmojiPickerVisible] =
     useState<boolean>(false);
@@ -40,6 +42,7 @@ const ChatScreen = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true); // Loading state
   const [shipmentTransit, setShipmentTransit] = useState<any>({});
   const [checkShipment, setCheckShipment] = useState<boolean>(true); //
+  const [driverStatus, setDriverStatus] = useState<any>("negotiating"); //
   let interval: any;
   const scrollViewRef = useRef<ScrollView>(null);
 
@@ -88,7 +91,8 @@ const ChatScreen = () => {
     let connection: any;
     const startConnection = async () => {
       connection = await chatService.startConnection();
-
+      const keys = await AsyncStorage.getAllKeys();
+      console.log("loaclol", keys);
       // Listener for receiving messages
       const messageListener = (receivedUser: string, message: string) => {
         setMessages((prevMessages) => [
@@ -107,20 +111,10 @@ const ChatScreen = () => {
       };
     };
 
-    // if (role != "driver" && checkShipment) {
-    //   interval = setInterval(async () => {
-    //     const rs: any = await getTripDetails();
-    //     if (rs?.hasDriver == true) {
-    //       clearInterval(interval);
-    //       setCheckShipment(false);
-    //     }
-    //   }, 2000);
-    // } else {
-    //   clearInterval(interval);
-    // }
+    console.log("driverStatusx", driverStatus, role);
 
     startConnection();
-  }, []);
+  }, [driverStatus]);
 
   useEffect(() => {
     // Scroll to the bottom when new messages are added
@@ -246,12 +240,27 @@ const ChatScreen = () => {
             </TouchableOpacity>
           </View>
 
-          {role === "driver" && (
-            <Button
-              title="Accept order"
-              onPress={() => setShowOrderCost(true)}
-            />
-          )}
+          {role === "driver" &&
+            (driverStatus === "negotiating" ? (
+              <Button
+                title="Accept order"
+                onPress={async () => {
+                  const status: any = await AsyncStorage.getItem(
+                    "driverOrderStatus"
+                  );
+                  setDriverStatus(status);
+                  setShowOrderCost(true);
+                }}
+              />
+            ) : (
+              <Button
+                title="Start trip"
+                onPress={async () => {
+                  await AsyncStorage.setItem("state", "Tract_driver");
+                  navigation.navigate("Map");
+                }}
+              />
+            ))}
           {role != "driver" && (
             <Button title="Accept order" onPress={() => getTripDetails()} />
           )}

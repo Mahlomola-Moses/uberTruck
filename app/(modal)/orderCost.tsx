@@ -41,8 +41,8 @@ const OrderCostModal: React.FC<ModalProps> = ({
         "/api/ShipmentTransit/create-transaction",
         data
       );
+      await AsyncStorage.setItem("driverOrderStatus", "negotiated");
       onClose();
-      console.log(results);
     } catch (error) {
       console.log(error);
     }
