@@ -97,8 +97,16 @@ const MapScreen: React.FC = () => {
 
     (async () => {
       const userx: any = await AsyncStorage.getItem("user");
-
+      const orderx: any = await AsyncStorage.getItem("acceptedRequest");
       console.log(JSON.parse(userx).email, "sign in .", JSON.parse(userx));
+      const order = JSON.parse(orderx);
+      setDestinationDestibation({
+        latitude: order.pickupLatitude,
+        longitude: order.pickupLongitude,
+        latitudeDelta: 0.02,
+        longitudeDelta: 0.02,
+      });
+      console.log("new destination_", destination);
     })();
   }, []);
 
@@ -167,8 +175,8 @@ const MapScreen: React.FC = () => {
             <>
               <Marker
                 coordinate={{
-                  latitude: destination.latitude,
-                  longitude: destination.longitude,
+                  latitude: location.latitude,
+                  longitude: location.longitude,
                 }}
                 title="Your Location"
                 description="You are here"

@@ -26,17 +26,19 @@ const OrdersScreen = () => {
     setModalVisible(true);
   };
 
-  const acceptRequest = async (id: any) => {
+  const acceptRequest = async (model: any) => {
+    console.log("Accept request", model);
     try {
       const data = {
-        shipmentId: Number(id),
+        shipmentId: Number(model?.id),
         driverId: Number(userId),
       };
       const results = await post(
         "/api/ShipmentTransit/update-shipment-driver",
         data
       );
-      await AsyncStorage.setItem("shipmentId", id.toString());
+      await AsyncStorage.setItem("shipmentId", model?.id.toString());
+      await AsyncStorage.setItem("acceptedRequest", JSON.stringify(model));
       fetchRequests();
       setModalVisible(false);
       navigation.navigate("Chat");
@@ -135,7 +137,7 @@ const OrdersScreen = () => {
             <Button
               title="Accept and negotiate"
               onPress={() => {
-                acceptRequest(selectedRequest?.id);
+                acceptRequest(selectedRequest);
               }}
             />
           </View>

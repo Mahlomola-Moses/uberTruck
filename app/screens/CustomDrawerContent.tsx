@@ -31,7 +31,7 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
     } else {
       props.navigation.navigate("Map");
     }
-    console.log("role", role);
+    console.log("role..", role);
   };
   React.useEffect(() => {
     checkStates();

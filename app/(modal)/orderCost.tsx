@@ -12,6 +12,7 @@ import RNPickerSelect from "react-native-picker-select";
 import Colors from "@/constants/Colors";
 import { get, post } from "../../services/apiService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "expo-router";
 interface ModalProps {
   visible: boolean;
   onClose: () => void;
@@ -25,6 +26,7 @@ const OrderCostModal: React.FC<ModalProps> = ({
   initialPrice,
   distance,
 }) => {
+  const navigation = useNavigation();
   const [paymentMethod, setPaymentMethod] = useState<string>("");
   const [price, setPrice] = useState<string>(initialPrice);
   const submitTripDetails = async () => {
@@ -43,6 +45,7 @@ const OrderCostModal: React.FC<ModalProps> = ({
       );
       await AsyncStorage.setItem("driverOrderStatus", "negotiated");
       onClose();
+      navigation.navigate("Map");
     } catch (error) {
       console.log(error);
     }
