@@ -34,10 +34,8 @@ const LoginScreen: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [errors, setErrors] = useState<Errors>({});
   const [user, setUser] = useState("not");
-
-  useEffect(() => {
-    console.log("hook");
-  }, []);
+  const [isLoggedIn, setIsLoggedIn] = React.useState<boolean>(false);
+  useEffect(() => {}, []);
 
   const validateInputs = (): boolean => {
     let valid = true;
@@ -72,6 +70,32 @@ const LoginScreen: React.FC = () => {
     setErrors(newErrors);
     return valid;
   };
+
+  const handleNavigation = async () => {
+    const keysBefore = await AsyncStorage.getAllKeys();
+    console.log("Before login screen", keysBefore);
+
+    const user: any = await AsyncStorage.getItem("user");
+    const parsedUser = JSON.parse(user);
+
+    console.log("Parsed user:", parsedUser);
+
+    if (parsedUser?.role_Id === 2) {
+      await AsyncStorage.setItem("role", "user");
+      navigation.navigate("Map");
+    } else {
+      await AsyncStorage.setItem("role", "driver");
+      navigation.navigate("Orders");
+    }
+
+    // Wait for updates to complete before checking keys again
+    const keysAfter = await AsyncStorage.getAllKeys();
+    console.log(
+      "After login screen",
+      await AsyncStorage.getItem("role"),
+      parsedUser?.role_Id
+    );
+  };
   const handleLogin = async () => {
     await AsyncStorage.setItem("logged", "YES");
     navigation.navigate("Map");
@@ -80,38 +104,33 @@ const LoginScreen: React.FC = () => {
     if (validateInputs()) {
       try {
         setLoading(true);
-        console.log({
-          Email: email,
-          Password: password,
-        });
+
         const result = await post("/api/login", {
           Email: email,
           Password: password,
         });
-        console.log(result);
+        console.log("logged in user ", result);
         setLoading(false);
         if (result) {
-          console.log("Success =>", result);
           await AsyncStorage.setItem("user", JSON.stringify(result.user));
           await AsyncStorage.setItem("logged", "YES");
           if (result?.user?.role_Id == 1) {
             await AsyncStorage.setItem("role", "user");
-            navigation.navigate("Map");
+            //navigation.navigate("Map");
           } else {
             await AsyncStorage.setItem("role", "driver");
-            navigation.navigate("Orders");
+            // navigation.navigate("Orders");
           }
           setUser("logged-in");
-          //handleLogin();
+          handleNavigation();
         } else {
           setUser("failed");
         }
       } catch (error) {
         setUser("failed");
-        console.log("Error fetching data:", error);
+
         setLoading(false);
       } finally {
-        console.log("done");
       }
     }
   };

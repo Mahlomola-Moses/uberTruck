@@ -33,7 +33,9 @@ const AuthStack: React.FC = () => (
 // Main App Navigator with Drawer
 const AppDrawer: React.FC = () => (
   <Drawer.Navigator
-    drawerContent={(props) => <CustomDrawerContent {...props} />}
+    drawerContent={(props) => {
+      return <CustomDrawerContent {...props} />;
+    }}
   >
     <Drawer.Screen
       name="Login"
@@ -79,10 +81,10 @@ const RootLayoutNav: React.FC = () => {
       setIsLoggedIn(false);
     }
 
-    console.log("User is logged in", userToken);
     const user: any = await AsyncStorage.getItem("logged");
-    if (JSON.parse(user)?.role_Id == 1) {
+    if (JSON.parse(user)?.role_Id == 2) {
       await AsyncStorage.setItem("role", "user");
+
       navigation.navigate("Map");
     } else {
       await AsyncStorage.setItem("role", "driver");
@@ -92,9 +94,11 @@ const RootLayoutNav: React.FC = () => {
 
   React.useEffect(() => {
     const handleNavigation = async () => {
+      const keys = await AsyncStorage.getAllKeys();
+      console.log("loaclol1", keys);
       const user: any = await AsyncStorage.getItem("logged");
       if (isLoggedIn) {
-        if (JSON.parse(user)?.role_Id == 1) {
+        if (JSON.parse(user)?.role_Id == 2) {
           await AsyncStorage.setItem("role", "user");
           navigation.navigate("Map");
         } else {
@@ -111,14 +115,29 @@ const RootLayoutNav: React.FC = () => {
   }, [isLoggedIn]);
 
   useEffect(() => {
-    console.log("hookeee");
+    // const handleNavigation = async () => {
+    //   const keys = await AsyncStorage.getAllKeys();
+    //   console.log("loaclol2", keys);
+    //   const user: any = await AsyncStorage.getItem("user ");
+    //   if (isLoggedIn) {
+    //     if (JSON.parse(user)?.role_Id == 1) {
+    //       await AsyncStorage.setItem("role", "user");
+    //       navigation.navigate("Map");
+    //     } else {
+    //       await AsyncStorage.setItem("role", "driver");
+    //       navigation.navigate("Orders");
+    //     }
+    //   }
+    // };
+    // handleNavigation();
   }, []);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <BottomSheetModalProvider>
         <NavigationContainer independent={true}>
-          {isLoggedIn ? <AppDrawer /> : <AuthStack />}
+          {/* {isLoggedIn ? <AppDrawer /> : <AuthStack />} */}
+          <AppDrawer />
         </NavigationContainer>
       </BottomSheetModalProvider>
     </GestureHandlerRootView>

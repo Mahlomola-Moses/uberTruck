@@ -91,8 +91,7 @@ const ChatScreen = () => {
     let connection: any;
     const startConnection = async () => {
       connection = await chatService.startConnection();
-      const keys = await AsyncStorage.getAllKeys();
-      console.log("loaclol", keys);
+
       // Listener for receiving messages
       const messageListener = (receivedUser: string, message: string) => {
         setMessages((prevMessages) => [

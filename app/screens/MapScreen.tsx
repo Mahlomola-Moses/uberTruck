@@ -38,7 +38,7 @@ const MapScreen: React.FC = () => {
   });
   const [address, setAddress] = useState<string | null>(null);
   const [state, setState] = useState<string | null>(null);
-
+  const [role, setRole] = useState<string | null>(null);
   useEffect(() => {
     console.log("screena", "map screen");
     const requestLocationPermission = async () => {
@@ -98,6 +98,11 @@ const MapScreen: React.FC = () => {
     (async () => {
       const userx: any = await AsyncStorage.getItem("user");
       const orderx: any = await AsyncStorage.getItem("acceptedRequest");
+      const rolex = await AsyncStorage.getItem("role");
+
+      if (userx) {
+        setRole(rolex);
+      }
       console.log(JSON.parse(userx).email, "sign in .", JSON.parse(userx));
       const order = JSON.parse(orderx);
       setDestinationDestibation({
@@ -196,20 +201,21 @@ const MapScreen: React.FC = () => {
             </>
           )}
         </MapView>
-        {state != "Tract_driver" && (
-          <>
-            <View style={styles.absoluteBox}>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={() => {
-                  setModalVisible(true);
-                }}
-              >
-                <Text style={styles.buttonText}>Place order</Text>
-              </TouchableOpacity>
-            </View>
-          </>
-        )}
+        {state != "Tract_driver" ||
+          (role == "driver" && (
+            <>
+              <View style={styles.absoluteBox}>
+                <TouchableOpacity
+                  style={styles.button}
+                  onPress={() => {
+                    setModalVisible(true);
+                  }}
+                >
+                  <Text style={styles.buttonText}>Place order</Text>
+                </TouchableOpacity>
+              </View>
+            </>
+          ))}
       </View>
     </TouchableWithoutFeedback>
   );

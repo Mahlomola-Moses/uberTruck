@@ -3,19 +3,22 @@ import {
   DrawerContentComponentProps,
   DrawerContentScrollView,
   DrawerItem,
+  useDrawerStatus,
 } from "@react-navigation/drawer";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { View, Text, Image, StyleSheet } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useEffect } from "react";
 
 const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   const navigation = useNavigation();
   const [role, setRole] = React.useState("");
+  const drawerStatus = useDrawerStatus();
 
   const handleLogout = async () => {
     await AsyncStorage.clear();
     const keys = await AsyncStorage.getAllKeys();
-    console.log("loaclol", keys);
+
     props.navigation.navigate("Login");
   };
   const checkStates = async () => {
@@ -33,10 +36,47 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
     }
     console.log("role..", role);
   };
+
   React.useEffect(() => {
     checkStates();
   }, [role]);
 
+  React.useEffect(() => {
+    checkStates();
+  }, [role]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      // Function to refresh local storage
+      const refreshLocalStorage = async () => {
+        try {
+          // const allKeys = await AsyncStorage.getAllKeys();
+          // setKeys(allKeys); // Update state with the latest keys
+          // console.log("Updated keys:", allKeys);
+
+          // // If you need to fetch specific data, do it here
+          // const user = await AsyncStorage.getItem("user");
+          // console.log("Updated user data:", JSON.parse(user));
+          checkStates();
+        } catch (error) {
+          console.error("Error refreshing local storage:", error);
+        }
+      };
+
+      refreshLocalStorage();
+
+      // Optional cleanup (if needed)
+      return () => {
+        console.log("Drawer no longer in focus");
+      };
+    }, [])
+  );
+
+  useEffect(() => {
+    if (drawerStatus === "open") {
+      checkStates();
+    }
+  }, [drawerStatus]);
   return (
     <DrawerContentScrollView {...props}>
       <View style={styles.profileContainer}>
@@ -56,9 +96,7 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
           home();
         }}
       />
-      <View style={{ flex: 1, justifyContent: "flex-end" }}>
-        <DrawerItem label="Logout" onPress={handleLogout} />
-      </View>
+
       <View style={{ flex: 1, justifyContent: "flex-end" }}>
         <DrawerItem
           label="Chat"
@@ -73,6 +111,9 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
           />
         </View>
       )}
+      <View style={{ flex: 1, justifyContent: "flex-end" }}>
+        <DrawerItem label="Logout" onPress={handleLogout} />
+      </View>
     </DrawerContentScrollView>
   );
 };
