@@ -197,7 +197,7 @@ const LoginScreen: React.FC = () => {
 
       <Text style={styles.orText}>OR</Text>
 
-      <View style={styles.socialContainer}>
+      {/* <View style={styles.socialContainer}>
         <TouchableOpacity
           style={styles.socialButton}
           onPress={signInWithFacebook}
@@ -213,7 +213,7 @@ const LoginScreen: React.FC = () => {
           <FontAwesome name="google" size={24} color="#DB4437" />
           <Text style={styles.socialButtonText}>Google</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
       <TouchableOpacity
         onPress={() => {
           navigation.navigate("SignUp");

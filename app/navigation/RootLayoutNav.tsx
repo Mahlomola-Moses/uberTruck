@@ -65,6 +65,12 @@ const AppDrawer: React.FC = () => (
       options={{ headerShown: false }}
     />
 
+    <Drawer.Screen
+      name="SignUp"
+      component={SignUpScreen}
+      options={{ headerShown: false }}
+    />
+
     {/* Add more screens to the drawer here if needed */}
   </Drawer.Navigator>
 );
