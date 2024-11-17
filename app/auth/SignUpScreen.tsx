@@ -11,13 +11,13 @@ import {
   Alert,
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
-import Colors from "@/constants/Colors";
+import Colors from "../../constants/Colors";
 import { Stack, useNavigation } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Spinner from "react-native-loading-spinner-overlay";
-import { post } from "@/services/apiService";
+import { post } from "../../services/apiService";
 import * as FileSystem from "expo-file-system";
-import * as DocumentPicker from "expo-document-picker";
+// import * as DocumentPicker from "expo-document-picker";
 import axios from "axios";
 
 interface AuthScreenProps {
@@ -143,7 +143,7 @@ const SignUpScreen: React.FC<AuthScreenProps> = ({ isSignup = false }) => {
           });
           console.log(driver);
         }
-        await uploadFilex(String(result?.id));
+        // await uploadFilex(String(result?.id));
         setLoading(false);
         setSignedUp(true);
       } catch (error) {
@@ -154,104 +154,104 @@ const SignUpScreen: React.FC<AuthScreenProps> = ({ isSignup = false }) => {
     }
   };
 
-  const pickDocument = async () => {
-    try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: "*/*", // all files
-      });
-      console.log(result);
-      if (result.canceled === false) {
-        // Single file selection
-        const file = result.assets[0];
-        setFile(file);
-        console.log("Selected file:", {
-          uri: file.uri,
-          name: file.name,
-          size: file.size,
-          mimeType: file.mimeType,
-        });
-      }
-    } catch (err) {
-      console.error("Error picking document:", err);
-    }
-  };
+  // const pickDocument = async () => {
+  //   try {
+  //     const result = await DocumentPicker.getDocumentAsync({
+  //       type: "*/*", // all files
+  //     });
+  //     console.log(result);
+  //     if (result.canceled === false) {
+  //       // Single file selection
+  //       const file = result.assets[0];
+  //       setFile(file);
+  //       console.log("Selected file:", {
+  //         uri: file.uri,
+  //         name: file.name,
+  //         size: file.size,
+  //         mimeType: file.mimeType,
+  //       });
+  //     }
+  //   } catch (err) {
+  //     console.error("Error picking document:", err);
+  //   }
+  // };
 
-  const createBasicAuthHeader = (username: string, password: string) => {
-    const token = btoa(`${username}:${password}`);
-    return `Basic ${token}`;
-  };
-  const handlePickAndUpload = async (id: any) => {
-    try {
-      console.log(`Uploading ${id}`, file);
-      const formData = new FormData();
-      formData.append("file", {
-        uri: file.uri,
-        name: file.name, // File name
-        type: file.mimeType, // File MIME type
-      });
-      formData.append("driver_id", id);
-      const response = await fetch(
-        "http://ubertrucking-001-site1.atempurl.com/api/Driver/upload",
-        {
-          method: "POST",
-          body: formData,
-          headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: createBasicAuthHeader("11200974", "60-dayfreetrial"),
-          },
-        }
-      );
+  // const createBasicAuthHeader = (username: string, password: string) => {
+  //   const token = btoa(`${username}:${password}`);
+  //   return `Basic ${token}`;
+  // };
+  // const handlePickAndUpload = async (id: any) => {
+  //   try {
+  //     console.log(`Uploading ${id}`, file);
+  //     const formData = new FormData();
+  //     formData.append("file", {
+  //       uri: file.uri,
+  //       name: file.name, // File name
+  //       type: file.mimeType, // File MIME type
+  //     });
+  //     formData.append("driver_id", id);
+  //     const response = await fetch(
+  //       "http://ubertrucking-001-site1.atempurl.com/api/Driver/upload",
+  //       {
+  //         method: "POST",
+  //         body: formData,
+  //         headers: {
+  //           "Content-Type": "multipart/form-data",
+  //           Authorization: createBasicAuthHeader("11200974", "60-dayfreetrial"),
+  //         },
+  //       }
+  //     );
 
-      console.log("Server response:", response);
-    } catch (error) {
-      console.error("Error picking or uploading file:", error);
-    }
-  };
+  //     console.log("Server response:", response);
+  //   } catch (error) {
+  //     console.error("Error picking or uploading file:", error);
+  //   }
+  // };
 
-  const uploadFilex = async (id: any) => {
-    try {
-      const fileUri = file.uri;
+  // const uploadFilex = async (id: any) => {
+  //   try {
+  //     const fileUri = file.uri;
 
-      // Read the file using Expo's FileSystem module
-      const fileInfo = await FileSystem.getInfoAsync(fileUri);
+  //     // Read the file using Expo's FileSystem module
+  //     const fileInfo = await FileSystem.getInfoAsync(fileUri);
 
-      if (!fileInfo.exists) {
-        Alert.alert("Error", "File does not exist.");
-        return;
-      }
+  //     if (!fileInfo.exists) {
+  //       Alert.alert("Error", "File does not exist.");
+  //       return;
+  //     }
 
-      // Prepare the form data
-      const formData = new FormData();
-      formData.append("File", {
-        uri: fileUri,
-        name: file.name, // The name of the file
-        type: file.mimeType, // The MIME type of the file
-      });
-      console.log("id: ", id);
-      formData.append("driver_id", id); // Add additional fields like driver_id
+  //     // Prepare the form data
+  //     const formData = new FormData();
+  //     formData.append("File", {
+  //       uri: fileUri,
+  //       name: file.name, // The name of the file
+  //       type: file.mimeType, // The MIME type of the file
+  //     });
+  //     console.log("id: ", id);
+  //     formData.append("driver_id", id); // Add additional fields like driver_id
 
-      // Configure the Axios request
-      const config = {
-        method: "POST",
-        url: "http://ubertrucking-001-site1.atempurl.com/api/Driver/upload",
-        headers: {
-          Authorization: createBasicAuthHeader("11200974", "60-dayfreetrial"),
-          "Content-Type": "multipart/form-data", // Let Axios handle the boundary for multipart form data
-        },
-        data: formData,
-      };
+  //     // Configure the Axios request
+  //     const config = {
+  //       method: "POST",
+  //       url: "http://ubertrucking-001-site1.atempurl.com/api/Driver/upload",
+  //       headers: {
+  //         Authorization: createBasicAuthHeader("11200974", "60-dayfreetrial"),
+  //         "Content-Type": "multipart/form-data", // Let Axios handle the boundary for multipart form data
+  //       },
+  //       data: formData,
+  //     };
 
-      // Make the request to upload the file
-      const response = await axios(config);
-      console.log("Server Response:", response);
+  //     // Make the request to upload the file
+  //     const response = await axios(config);
+  //     console.log("Server Response:", response);
 
-      // Handle success response
-      // Alert.alert("Success", "File uploaded successfully");
-    } catch (error) {
-      console.log("Upload failed:", error, file);
-      Alert.alert("Error", "Failed to upload file.");
-    }
-  };
+  //     // Handle success response
+  //     // Alert.alert("Success", "File uploaded successfully");
+  //   } catch (error) {
+  //     console.log("Upload failed:", error, file);
+  //     Alert.alert("Error", "Failed to upload file.");
+  //   }
+  // };
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollViewContent}>
@@ -359,14 +359,14 @@ const SignUpScreen: React.FC<AuthScreenProps> = ({ isSignup = false }) => {
               value={vehicleModel}
               onChangeText={setVehicleModel}
             />
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={styles.fileUploadButton}
               onPress={pickDocument}
             >
               <Text style={styles.fileUploadButtonText}>
                 Upload Driver's License
               </Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </>
         )}
         <TextInput

@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import React, { useState, useRef, useEffect } from "react";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
-import Colors from "@/constants/Colors";
+import Colors from "../constants/Colors";
 import { useNavigation } from "expo-router";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { Ionicons } from "@expo/vector-icons";

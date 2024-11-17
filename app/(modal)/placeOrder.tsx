@@ -12,12 +12,12 @@ import {
   Platform,
   Modal,
 } from "react-native";
-import Colors from "@/constants/Colors";
+import Colors from "../../constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Spinner from "react-native-loading-spinner-overlay";
-import DriverModal from "@/app/(modal)/driver"; // Replace with your actual driver modal import
+import DriverModal from "../../app/(modal)/driver"; // Replace with your actual driver modal import
 import { get, post } from "../../services/apiService";
 
 interface PlaceOrderProps {

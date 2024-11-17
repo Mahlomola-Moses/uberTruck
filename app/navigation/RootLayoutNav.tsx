@@ -10,7 +10,7 @@ import LoginScreen from "../auth/LoginScreen"; // Import your Login screen
 import SignUpScreen from "../auth/SignUpScreen"; // Import your Sign-up screen
 import MapScreen from "../screens/MapScreen"; // Import your Map screen
 import CustomDrawerContent from "../screens/CustomDrawerContent"; // Custom Drawer Content
-import CustomHeader from "@/Components/CustomHeader";
+import CustomHeader from "../../Components/CustomHeader";
 import ChatScreen from "../screens/chat";
 import RequestScreen from "../screens/request";
 import OrdersScreen from "../screens/Orders";

@@ -15,14 +15,14 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.mahlomola.deliverooClone"
+      "bundleIdentifier": "com.mahlomola.uberTruck"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.mahlomola.deliverooClone"
+      "package": "com.mahlomola.uberTruck"
     },
     "web": {
       "bundler": "metro",

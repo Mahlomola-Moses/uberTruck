@@ -14,12 +14,12 @@ import {
   ActivityIndicator,
 } from "react-native";
 import EmojiSelector, { Categories } from "react-native-emoji-selector";
-import Colors from "@/constants/Colors";
-import chatService from "@/services/chatService";
+import Colors from "../../constants/Colors";
+import chatService from "../../services/chatService";
 import OrderCostModal from "../(modal)/orderCost";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import OrderDetailsModal from "../(modal)/orderDetails";
-import { get } from "@/services/apiService";
+import { get } from "../../services/apiService";
 import { useNavigation } from "expo-router";
 
 interface Message {

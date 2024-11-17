@@ -12,7 +12,7 @@ import {
 import React, { useState, useRef, useEffect } from "react";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
-import Colors from "@/constants/Colors";
+import Colors from "../../constants/Colors";
 import { useNavigation } from "expo-router";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { Ionicons } from "@expo/vector-icons";
@@ -187,7 +187,7 @@ const MapScreen: React.FC = () => {
                 description="You are here"
               >
                 <Image
-                  source={require("@/assets/images/truck_driver_logo_transparent.png")}
+                  source={require("../../assets/images/truck_driver_logo_transparent.png")}
                   style={{ width: 50, height: 50 }}
                 />
               </Marker>

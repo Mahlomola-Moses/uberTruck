@@ -9,7 +9,7 @@ import {
   TextInput,
 } from "react-native";
 import RNPickerSelect from "react-native-picker-select";
-import Colors from "@/constants/Colors";
+import Colors from "../../constants/Colors";
 import { get, post } from "../../services/apiService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 interface ModalProps {

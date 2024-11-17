@@ -58,7 +58,7 @@ const CustomHeader = () => {
         <TouchableOpacity>
           <Image
             style={styles.bike}
-            source={require("@/assets/images/truck_driver_logo_transparent.png")}
+            source={require("../assets/images/truck_driver_logo_transparent.png")}
           />
         </TouchableOpacity>
 
