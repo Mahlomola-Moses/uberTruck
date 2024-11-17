@@ -13,7 +13,7 @@ import React, { useState, useRef, useEffect } from "react";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import Colors from "@/constants/Colors";
-import { useNavigation } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { Ionicons } from "@expo/vector-icons";
 import Geolocation from "react-native-geolocation-service";
@@ -201,21 +201,20 @@ const MapScreen: React.FC = () => {
             </>
           )}
         </MapView>
-        {state != "Tract_driver" ||
-          (role == "driver" && (
-            <>
-              <View style={styles.absoluteBox}>
-                <TouchableOpacity
-                  style={styles.button}
-                  onPress={() => {
-                    setModalVisible(true);
-                  }}
-                >
-                  <Text style={styles.buttonText}>Place order</Text>
-                </TouchableOpacity>
-              </View>
-            </>
-          ))}
+        {state != "Tract_driver" && role != "driver" && (
+          <>
+            <View style={styles.absoluteBox}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={() => {
+                  setModalVisible(true);
+                }}
+              >
+                <Text style={styles.buttonText}>Place order</Text>
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
       </View>
     </TouchableWithoutFeedback>
   );

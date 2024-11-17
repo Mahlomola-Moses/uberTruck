@@ -25,7 +25,7 @@ import {
   useBottomSheetModal,
 } from "@gorhom/bottom-sheet";
 import Colors from "../constants/Colors";
-import { Link, useNavigation } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import * as Location from "expo-location";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";

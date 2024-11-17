@@ -1,25 +1,40 @@
-import { View, Text, Button, TouchableOpacity, StyleSheet } from 'react-native';
-import React, { forwardRef, useCallback, useMemo } from 'react';
-import { BottomSheetBackdrop, BottomSheetModal, useBottomSheetModal } from '@gorhom/bottom-sheet';
-import Colors from '../constants/Colors';
-import { Link } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, Button, TouchableOpacity, StyleSheet } from "react-native";
+import React, { forwardRef, useCallback, useMemo } from "react";
+import {
+  BottomSheetBackdrop,
+  BottomSheetModal,
+  useBottomSheetModal,
+} from "@gorhom/bottom-sheet";
+import Colors from "../constants/Colors";
+
+import { Link } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
 
 export type Ref = BottomSheetModal;
 
 const BottomSheet = forwardRef<Ref>((props, ref) => {
-  const snapPoints = useMemo(() => ['50%'], []);
-  const renderBackdrop = useCallback((props: any) => <BottomSheetBackdrop appearsOnIndex={0} disappearsOnIndex={-1} {...props} />, []);
+  const snapPoints = useMemo(() => ["50%"], []);
+  const renderBackdrop = useCallback(
+    (props: any) => (
+      <BottomSheetBackdrop
+        appearsOnIndex={0}
+        disappearsOnIndex={-1}
+        {...props}
+      />
+    ),
+    []
+  );
   const { dismiss } = useBottomSheetModal();
 
   return (
     <BottomSheetModal
-      handleIndicatorStyle={{ display: 'none' }}
+      handleIndicatorStyle={{ display: "none" }}
       backgroundStyle={{ borderRadius: 0, backgroundColor: Colors.lightGrey }}
       overDragResistanceFactor={0}
       ref={ref}
       snapPoints={snapPoints}
-      backdropComponent={renderBackdrop}>
+      backdropComponent={renderBackdrop}
+    >
       <View style={styles.contentContainer}>
         <View style={styles.toggle}>
           <TouchableOpacity style={styles.toggleActive}>
@@ -31,12 +46,20 @@ const BottomSheet = forwardRef<Ref>((props, ref) => {
         </View>
 
         <Text style={styles.subheader}>Your Location</Text>
-        <Link href={'/(modal)/location-search'} asChild>
+        <Link href={"/(modal)/location-search"} asChild>
           <TouchableOpacity>
             <View style={styles.item}>
-              <Ionicons name="location-outline" size={20} color={Colors.medium} />
+              <Ionicons
+                name="location-outline"
+                size={20}
+                color={Colors.medium}
+              />
               <Text style={{ flex: 1 }}>Current location</Text>
-              <Ionicons name="chevron-forward" size={20} color={Colors.primary} />
+              <Ionicons
+                name="chevron-forward"
+                size={20}
+                color={Colors.primary}
+              />
             </View>
           </TouchableOpacity>
         </Link>
@@ -44,7 +67,11 @@ const BottomSheet = forwardRef<Ref>((props, ref) => {
         <Text style={styles.subheader}>Arrival time</Text>
         <TouchableOpacity>
           <View style={styles.item}>
-            <Ionicons name="stopwatch-outline" size={20} color={Colors.medium} />
+            <Ionicons
+              name="stopwatch-outline"
+              size={20}
+              color={Colors.medium}
+            />
             <Text style={{ flex: 1 }}>Now</Text>
             <Ionicons name="chevron-forward" size={20} color={Colors.primary} />
           </View>
@@ -63,8 +90,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   toggle: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     gap: 10,
     marginBottom: 32,
   },
@@ -75,8 +102,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
   },
   activeText: {
-    color: '#fff',
-    fontWeight: '700',
+    color: "#fff",
+    fontWeight: "700",
   },
   toggleInactive: {
     padding: 8,
@@ -91,22 +118,22 @@ const styles = StyleSheet.create({
     padding: 16,
     margin: 16,
     borderRadius: 4,
-    alignItems: 'center',
+    alignItems: "center",
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
   },
   subheader: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     margin: 16,
   },
   item: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 8,
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    alignItems: "center",
+    backgroundColor: "#fff",
     padding: 16,
     borderColor: Colors.grey,
     borderWidth: 1,

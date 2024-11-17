@@ -20,7 +20,7 @@ import OrderCostModal from "../(modal)/orderCost";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import OrderDetailsModal from "../(modal)/orderDetails";
 import { get } from "@/services/apiService";
-import { useNavigation } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 
 interface Message {
   user: string;

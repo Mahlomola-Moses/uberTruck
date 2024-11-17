@@ -10,7 +10,7 @@ import {
   Button,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 import { get, post } from "../../services/apiService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useFocusEffect } from "@react-navigation/native";

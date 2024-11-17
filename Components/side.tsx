@@ -10,7 +10,7 @@ import { Button, View, Text } from "react-native";
 import LocationSearch from "../old/map";
 import CustomHeader from "./CustomHeader";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Link, useNavigation } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 import AuthScreen from "@/old/sign";
 import CustomDrawerContent from "./sideContent";
 type DrawerParamList = {

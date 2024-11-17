@@ -6,7 +6,7 @@ import {
   DrawerItemList,
 } from "@react-navigation/drawer";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Link, useNavigation } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
   const handleLogout = async () => {
     // Clear the user token or any other data

@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Stack, useNavigation } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 interface ModalProps {
   visible: boolean;
   closeModel: () => void;

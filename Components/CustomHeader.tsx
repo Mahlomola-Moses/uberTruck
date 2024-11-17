@@ -10,7 +10,7 @@ import {
 import React, { useEffect, useRef, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import Colors from "../constants/Colors";
-import { Link, useNavigation } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { DrawerNavigationProp } from "@react-navigation/drawer";
 
