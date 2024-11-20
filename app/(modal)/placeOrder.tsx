@@ -11,14 +11,16 @@ import {
   KeyboardAvoidingView,
   Platform,
   Modal,
+  Alert,
 } from "react-native";
 import Colors from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Spinner from "react-native-loading-spinner-overlay";
-import DriverModal from "@/app/(modal)/driver"; // Replace with your actual driver modal import
 import { get, post } from "../../services/apiService";
+import { useNavigation } from "@react-navigation/native";
+import DriverModal from "./driver";
 
 interface PlaceOrderProps {
   visible: boolean;
@@ -53,6 +55,7 @@ const PlaceOrder: React.FC<PlaceOrderProps> = ({ visible, onClose }) => {
     width: 0,
   });
   const [shipmentDesc, setShipmentDesc] = useState("");
+  const [driverId, setDriverId] = useState(null);
   const fetchData = async (id: number) => {
     try {
       const response = await get(
@@ -89,28 +92,55 @@ const PlaceOrder: React.FC<PlaceOrderProps> = ({ visible, onClose }) => {
       await AsyncStorage.setItem("contextOrder", JSON.stringify(results));
       console.log("dsts", results?.shipmentTransit?.id);
 
-      // Start polling
-      const interval: any = setInterval(async () => {
+      const pollDriver = async () => {
         const rs = await fetchData(results?.shipmentTransit?.id);
-        if (rs.hasDriver == true) {
+
+        if (rs.hasDriver) {
           clearInterval(interval);
+          setDriverId(rs?.shipmentTransit?.driverId);
+          showAlert();
           setLoading(false);
-          setShowDriver(true);
+
+          // setTimeout(() => {
+          //    navigation.navigate("CheckDriver", {
+          //      driverId: rs?.shipmentTransit?.driverId,
+          //   });
+          //   showAlert;
+          // }, 500);
+        } else {
+          console.log("LOOKING", loading);
+          console.log("show driver state", showDriver);
         }
-      }, 2000);
+      };
 
-      // Stop polling after 2 minutes (120,000 ms)
-      setTimeout(() => {
-        clearInterval(interval);
-        setLoading(false);
-      }, 60000);
-
-      //   setLoading(false);
-      //   setShowDriver(true);
+      const interval = setInterval(pollDriver, 2000);
     } catch (error) {
       console.error("Error creating order:", error);
       setLoading(false);
     }
+  };
+
+  const showAlert = () => {
+    Alert.alert(
+      "Confirmation",
+      "Are you sure you want to proceed?",
+      [
+        {
+          text: "No",
+          onPress: () => console.log("User chose No"),
+          style: "cancel",
+        },
+        {
+          text: "Yes",
+          onPress: () => {
+            console.log("User chose Yes");
+            setShowDriver(true);
+            //onClose();
+          },
+        },
+      ],
+      { cancelable: false }
+    );
   };
 
   const renderContent = () => (
@@ -121,14 +151,16 @@ const PlaceOrder: React.FC<PlaceOrderProps> = ({ visible, onClose }) => {
         textStyle={{ color: "white" }}
         overlayColor="rgba(47, 149, 220, 0.75)"
       />
-
-      <DriverModal
-        visible={showDriver}
-        closeModel={() => {
-          setShowDriver(false);
-          onClose();
-        }}
-      />
+      {showDriver && (
+        <DriverModal
+          id={driverId}
+          visible={showDriver}
+          closeModel={() => {
+            setShowDriver(false);
+            onClose();
+          }}
+        />
+      )}
 
       <Text style={styles.subheader}>Order details</Text>
 
@@ -241,6 +273,13 @@ const PlaceOrder: React.FC<PlaceOrderProps> = ({ visible, onClose }) => {
       </TouchableOpacity>
 
       <Button title="Close" onPress={onClose} color={Colors.primary} />
+      {/* <Button
+        title="Close"
+        onPress={() => {
+          setShowDriver(true);
+        }}
+        color={Colors.primary}
+      /> */}
     </View>
   );
 

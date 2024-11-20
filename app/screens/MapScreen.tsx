@@ -8,22 +8,24 @@ import {
   PermissionsAndroid,
   Keyboard,
   Image,
+  Modal,
 } from "react-native";
 import React, { useState, useRef, useEffect } from "react";
 import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import Colors from "@/constants/Colors";
-import { useNavigation } from "@react-navigation/native";
+
 import { GooglePlacesAutocomplete } from "react-native-google-places-autocomplete";
 import { Ionicons } from "@expo/vector-icons";
 import Geolocation from "react-native-geolocation-service";
 import * as Location from "expo-location";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import PlaceOrder from "../(modal)/placeOrder";
+import Spinner from "react-native-loading-spinner-overlay";
 
 const MapScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
-  const navigation = useNavigation();
+
   const [location, setLocation] = useState({
     latitude: -25.858458,
     longitude: 28.18961,
@@ -39,6 +41,7 @@ const MapScreen: React.FC = () => {
   const [address, setAddress] = useState<string | null>(null);
   const [state, setState] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
+  const [test, setTest] = useState(false);
   useEffect(() => {
     console.log("screena", "map screen");
     const requestLocationPermission = async () => {
@@ -130,7 +133,9 @@ const MapScreen: React.FC = () => {
       <View style={{ flex: 1, height: "50%" }}>
         <PlaceOrder
           visible={modalVisible}
-          onClose={() => setModalVisible(false)}
+          onClose={() => {
+            setModalVisible(false);
+          }}
         />
 
         <GooglePlacesAutocomplete
@@ -201,6 +206,7 @@ const MapScreen: React.FC = () => {
             </>
           )}
         </MapView>
+        {/* <Text>state</Text> */}
         {state != "Tract_driver" && role != "driver" && (
           <>
             <View style={styles.absoluteBox}>

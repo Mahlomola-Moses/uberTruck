@@ -14,6 +14,7 @@ import OrdersScreen from "./screens/Orders";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { NavigationContainer } from "@react-navigation/native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import CheckDriverScreen from "./screens/checkDriver";
 
 // Ignore all log notifications:
 LogBox.ignoreAllLogs(true);
@@ -58,7 +59,11 @@ const AppDrawer: React.FC = () => (
       component={SignUpScreen}
       options={{ headerShown: false }}
     />
-
+    <Drawer.Screen
+      name="CheckDriver"
+      component={CheckDriverScreen}
+      options={{ headerShown: false }}
+    />
     {/* Add more screens to the drawer here if needed */}
   </Drawer.Navigator>
 );

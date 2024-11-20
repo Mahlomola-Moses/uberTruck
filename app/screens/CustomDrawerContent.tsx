@@ -17,6 +17,8 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
 
   const handleLogout = async () => {
     await AsyncStorage.clear();
+
+    // Log cleared keys to confirm
     const keys = await AsyncStorage.getAllKeys();
 
     props.navigation.navigate("Login");

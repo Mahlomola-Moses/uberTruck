@@ -1,5 +1,5 @@
 import Colors from "@/constants/Colors";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   View,
@@ -11,14 +11,19 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
+import { get } from "../../services/apiService";
+import Spinner from "react-native-loading-spinner-overlay";
 interface ModalProps {
+  id: any;
   visible: boolean;
   closeModel: () => void;
 }
 
-const DriverModal: React.FC<any> = (prop) => {
+const DriverModal: React.FC<ModalProps> = ({ id, visible, closeModel }) => {
   const navigation = useNavigation();
-  // Example data
+  const [loading, setLoading] = useState(false);
+  const [driverInfos, setDriverInfos] = useState<any>();
+
   const driverInfo = {
     name: "John Doe",
     picture:
@@ -33,41 +38,76 @@ const DriverModal: React.FC<any> = (prop) => {
     const statx = await AsyncStorage.getItem("state");
     navigation.navigate("Chat");
   };
+  const fetchData = async (id: number) => {
+    try {
+      const url = `/api/Driver/drivers/${id}`;
+      console.log(url);
+      const response = await get(url);
+
+      setDriverInfos(response);
+      console.log(driverInfos);
+      setLoading(true);
+    } catch (error) {
+      // setLoading(false);
+      console.error("Error fetching data:", error);
+    }
+  };
+  useEffect(() => {
+    (async () => {
+      await fetchData(id);
+    })();
+  }, [driverInfos]);
 
   return (
     <Modal
       animationType="slide"
       transparent={true}
-      visible={prop.visible}
-      onRequestClose={prop.closeModel}
+      visible={visible}
+      onRequestClose={closeModel}
     >
+      {/* <Spinner
+        visible={visible}
+        textContent={"Looking for drivers..."}
+        textStyle={{ color: "white" }}
+        overlayColor="rgba(47, 149, 220, 0.75)"
+      /> */}
       <View style={styles.modalBackground}>
         <View style={styles.modalContainer}>
-          <Text style={styles.modalTitle}>Driver Found</Text>
-          <Image
-            source={{ uri: driverInfo.picture }}
-            style={styles.driverImage}
-          />
-          <Text style={styles.driverName}>{driverInfo.name}</Text>
-          <Text style={styles.truckInfo}>
-            <Text style={styles.label}>Registration:</Text>{" "}
-            {driverInfo.truckRegistration}
-          </Text>
-          <Text style={styles.truckInfo}>
-            <Text style={styles.label}>Model:</Text> {driverInfo.truckModel}
-          </Text>
-          <Text style={styles.truckInfo}>
-            <Text style={styles.label}>Color:</Text> {driverInfo.truckColor}
-          </Text>
-          <TouchableOpacity
-            onPress={() => {
-              prop.closeModel();
-              nogotiate();
-            }}
-            style={styles.closeButton}
-          >
-            <Text style={styles.closeButtonText}>Negotiate</Text>
-          </TouchableOpacity>
+          {loading && (
+            <>
+              {" "}
+              <Text style={styles.modalTitle}>Driver Found</Text>
+              <Image
+                source={{
+                  uri: "https://cdn-bcldb.nitrocdn.com/kLRdXZGeQymYELvyTfXVsQALHhzNRamH/assets/images/optimized/rev-306e71b/www.teamais.net/wp-content/uploads/2020/07/driver-hire-min.jpg",
+                }}
+                style={styles.driverImage}
+              />
+              <Text style={styles.driverName}>
+                {driverInfos.driverDetail.driverName}
+              </Text>
+              <Text style={styles.truckInfo}>
+                <Text style={styles.label}>Registration:</Text>{" "}
+                {driverInfos.driverDetail.vehicleRegistration}
+              </Text>
+              <Text style={styles.truckInfo}>
+                <Text style={styles.label}>Model:</Text>{" "}
+                {driverInfos.driverDetail.vehicleModel}
+              </Text>
+              {/* <Text style={styles.truckInfo}>
+                <Text style={styles.label}>Color:</Text> {driverInfo.truckColor}
+              </Text> */}
+              <TouchableOpacity
+                onPress={() => {
+                  closeModel();
+                  nogotiate();
+                }}
+                style={styles.closeButton}
+              >
+                <Text style={styles.closeButtonText}>Negotiate</Text>
+              </TouchableOpacity>
+            </>
+          )}
         </View>
       </View>
     </Modal>

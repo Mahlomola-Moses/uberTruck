@@ -1,4 +1,3 @@
-// MyModal.tsx
 import React, { useState } from "react";
 import {
   Modal,
@@ -8,11 +7,13 @@ import {
   StyleSheet,
   TextInput,
 } from "react-native";
-import RNPickerSelect from "react-native-picker-select";
 import Colors from "@/constants/Colors";
 import { get, post } from "../../services/apiService";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
+import { TouchableWithoutFeedback, Keyboard } from "react-native";
+import { Picker } from "@react-native-picker/picker";
+
 interface ModalProps {
   visible: boolean;
   onClose: () => void;
@@ -29,12 +30,13 @@ const OrderCostModal: React.FC<ModalProps> = ({
   const navigation = useNavigation();
   const [paymentMethod, setPaymentMethod] = useState<string>("");
   const [price, setPrice] = useState<string>(initialPrice);
+
   const submitTripDetails = async () => {
     try {
       console.log(paymentMethod, price);
       const shipId: any = await AsyncStorage.getItem("shipmentId");
       const data = {
-        shipmentId: Number(shipId), //order in context
+        shipmentId: Number(shipId),
         price: price,
         paymentMethod: paymentMethod,
         distance: 0,
@@ -45,11 +47,11 @@ const OrderCostModal: React.FC<ModalProps> = ({
       );
       await AsyncStorage.setItem("driverOrderStatus", "negotiated");
       onClose();
-      navigation.navigate("Map");
     } catch (error) {
       console.log(error);
     }
   };
+
   return (
     <View>
       <Modal
@@ -59,52 +61,70 @@ const OrderCostModal: React.FC<ModalProps> = ({
         onRequestClose={onClose}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalView}>
-            {/* Modal Title */}
-            <Text style={styles.modalTitle}>Trip Details</Text>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={styles.modalView}>
+              {/* Modal Title */}
+              <Text style={styles.modalTitle}>Trip Details</Text>
 
-            {/* Price and Distance Display */}
-            <View style={styles.infoContainer}>
-              <View style={styles.infoItem}>
-                <Text style={styles.infoLabel}>Price:</Text>
-                <TextInput
-                  style={styles.input}
-                  value={price}
-                  onChangeText={setPrice}
-                  keyboardType="numeric"
-                />
+              {/* Price and Distance Display */}
+              <View style={styles.infoContainer}>
+                <View style={styles.infoItem}>
+                  <Text style={styles.infoLabel}>Price:</Text>
+
+                  <TextInput
+                    style={styles.input}
+                    value={price}
+                    onChangeText={setPrice}
+                    keyboardType="numeric"
+                  />
+                </View>
               </View>
 
-              {/* <View style={styles.infoItem}>
-                <Text style={styles.infoLabel}>Distance:</Text>
-                <Text style={styles.infoValue}>{distance} km</Text>
-              </View> */}
+              {/* Payment Method Picker */}
+              <Text style={styles.infoLabel}>Payment method:</Text>
+
+              <View style={styles.radioGroup}>
+                <TouchableOpacity
+                  style={styles.radioItem}
+                  onPress={() => setPaymentMethod("cash")}
+                >
+                  <View
+                    style={[
+                      styles.radioCircle,
+                      paymentMethod === "cash" && styles.radioSelected,
+                    ]}
+                  />
+                  <Text style={styles.radioLabel}>Cash</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.radioItem}
+                  onPress={() => setPaymentMethod("card")}
+                >
+                  <View
+                    style={[
+                      styles.radioCircle,
+                      paymentMethod === "card" && styles.radioSelected,
+                    ]}
+                  />
+                  <Text style={styles.radioLabel}>Card</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Confirm Order Button */}
+              <TouchableOpacity
+                style={styles.button}
+                onPress={submitTripDetails}
+              >
+                <Text style={styles.buttonText}>Confirm Order</Text>
+              </TouchableOpacity>
+
+              {/* Close Modal Button */}
+              <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
             </View>
-
-            {/* Payment Method Picker */}
-            <View style={styles.pickerContainer}>
-              <Text style={styles.infoLabel}>Payment Method:</Text>
-              <RNPickerSelect
-                onValueChange={(value) => setPaymentMethod(value)}
-                items={[
-                  { label: "Card", value: "card" },
-                  { label: "Cash", value: "cash" },
-                ]}
-                style={pickerSelectStyles}
-                placeholder={{ label: "Select payment method", value: "" }}
-              />
-            </View>
-
-            {/* Confirm Order Button */}
-            <TouchableOpacity style={styles.button} onPress={submitTripDetails}>
-              <Text style={styles.buttonText}>Confirm Order</Text>
-            </TouchableOpacity>
-
-            {/* Close Modal Button */}
-            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-              <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity>
-          </View>
+          </TouchableWithoutFeedback>
         </View>
       </Modal>
     </View>
@@ -150,11 +170,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#555",
   },
-  infoValue: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#333",
-  },
   input: {
     fontSize: 18,
     borderColor: "#ccc",
@@ -163,6 +178,17 @@ const styles = StyleSheet.create({
     padding: 8,
     width: 150,
     textAlign: "right",
+  },
+  pickerContainer: {
+    width: "100%",
+    marginBottom: 20,
+  },
+  picker: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    fontSize: 16,
+    backgroundColor: "#f9f9f9",
   },
   button: {
     backgroundColor: Colors.primary,
@@ -190,36 +216,30 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
   },
-  pickerContainer: {
+  radioGroup: {
+    flexDirection: "row",
+    justifyContent: "space-around",
     width: "100%",
     marginBottom: 20,
   },
-});
-
-const pickerSelectStyles = StyleSheet.create({
-  inputIOS: {
-    fontSize: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    color: "black",
-    paddingRight: 30, // to ensure the text is not truncated behind the icon
-    backgroundColor: "#f9f9f9",
-    marginTop: 10,
+  radioItem: {
+    flexDirection: "row",
+    alignItems: "center",
   },
-  inputAndroid: {
+  radioCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: "#555",
+    marginRight: 10,
+  },
+  radioSelected: {
+    backgroundColor: Colors.primary,
+  },
+  radioLabel: {
     fontSize: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 8,
-    color: "black",
-    paddingRight: 30, // to ensure the text is not truncated behind the icon
-    backgroundColor: "#f9f9f9",
-    marginTop: 10,
+    color: "#333",
   },
 });
 

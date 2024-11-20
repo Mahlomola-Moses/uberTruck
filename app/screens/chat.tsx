@@ -52,18 +52,19 @@ const ChatScreen = () => {
     const orderDetails: any = JSON.parse(contextOrder);
     try {
       const url = `/api/ShipmentTransit/shipment-has-driver/${(orderDetails?.shipmentTransit?.id).toString()}`;
-      console.log(url, "***", orderDetails.shipmentTransit.id);
+      console.log(url, "***", orderDetails.shipmentTransit);
       const results = await get(url);
-      if (results) {
+      console.log(shipmentTransit);
+      if (shipmentTransit.price != 0) {
+        setShowOrderDetails(true);
         await AsyncStorage.setItem(
           "shipmentTransit",
           JSON.stringify(results?.shipmentTransit)
         );
         setShipmentTransit(results?.shipmentTransit);
       } else {
-        alert("The driver hasn't accepted the negotiated price yet");
+        alert("The driver hasn't accepted the negotiations price yet");
       }
-      setShowOrderDetails(true);
     } catch (error) {
       console.log(error);
     }
@@ -240,7 +241,7 @@ const ChatScreen = () => {
           </View>
 
           {role === "driver" &&
-            (driverStatus === "negotiating" ? (
+            (driverStatus == "negotiating" ? (
               <Button
                 title="Accept order"
                 onPress={async () => {
