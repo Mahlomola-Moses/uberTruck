@@ -131,7 +131,7 @@ const SignUpScreen: React.FC<AuthScreenProps> = ({ isSignup = false }) => {
           roleId: roleId,
         });
 
-        console.log(result);
+        console.log("x", result);
 
         if (roleId == 3) {
           const driver = await post("/api/Driver/create-driver-details", {
@@ -228,7 +228,7 @@ const SignUpScreen: React.FC<AuthScreenProps> = ({ isSignup = false }) => {
         type: file.mimeType, // The MIME type of the file
       });
       console.log("id: ", id);
-      formData.append("driver_id", id); // Add additional fields like driver_id
+      formData.append("DriverId", id); // Add additional fields like driver_id
 
       // Configure the Axios request
       const config = {
