@@ -101,6 +101,9 @@ const LoginScreen: React.FC = () => {
     navigation.navigate("Map");
   };
   const signIn = async () => {
+    await AsyncStorage.clear();
+    const keys = await AsyncStorage.getAllKeys();
+    console.log("lgout **", keys);
     if (validateInputs()) {
       try {
         setLoading(true);

@@ -55,7 +55,7 @@ const ChatScreen = () => {
       console.log(url, "***", orderDetails.shipmentTransit);
       const results = await get(url);
       console.log(shipmentTransit);
-      if (shipmentTransit.price != 0) {
+      if (results?.shipmentTransit.price != 0) {
         setShowOrderDetails(true);
         await AsyncStorage.setItem(
           "shipmentTransit",
@@ -262,7 +262,10 @@ const ChatScreen = () => {
               />
             ))}
           {role != "driver" && (
-            <Button title="Accept order" onPress={() => getTripDetails()} />
+            <Button
+              title="Accept order"
+              onPress={async () => await getTripDetails()}
+            />
           )}
         </KeyboardAvoidingView>
       </TouchableWithoutFeedback>

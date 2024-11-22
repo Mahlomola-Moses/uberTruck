@@ -327,7 +327,6 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 10,
     width: "100%", // Ensure inputs take full width
-    color: "red",
   },
   descriptionInput: { height: 100, textAlignVertical: "top" },
   button: {
