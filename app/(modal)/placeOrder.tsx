@@ -236,6 +236,7 @@ const PlaceOrder: React.FC<PlaceOrderProps> = ({ visible, onClose }) => {
       <Text style={styles.subheader}>Shipment Size</Text>
       <TextInput
         style={styles.input}
+        placeholderTextColor="#999"
         placeholder="Height"
         keyboardType="numeric"
         onChangeText={(value) =>
@@ -244,6 +245,7 @@ const PlaceOrder: React.FC<PlaceOrderProps> = ({ visible, onClose }) => {
       />
       <TextInput
         style={styles.input}
+        placeholderTextColor="#999"
         placeholder="Length"
         keyboardType="numeric"
         onChangeText={(value) =>
@@ -252,6 +254,7 @@ const PlaceOrder: React.FC<PlaceOrderProps> = ({ visible, onClose }) => {
       />
       <TextInput
         style={styles.input}
+        placeholderTextColor="#999"
         placeholder="Width"
         keyboardType="numeric"
         onChangeText={(value) =>
@@ -264,6 +267,7 @@ const PlaceOrder: React.FC<PlaceOrderProps> = ({ visible, onClose }) => {
       <TextInput
         style={[styles.input, styles.descriptionInput]}
         placeholder="Add description"
+        placeholderTextColor="#999"
         multiline
         onChangeText={setShipmentDesc}
       />
@@ -323,6 +327,7 @@ const styles = StyleSheet.create({
     padding: 12,
     marginBottom: 10,
     width: "100%", // Ensure inputs take full width
+    color: "red",
   },
   descriptionInput: { height: 100, textAlignVertical: "top" },
   button: {
