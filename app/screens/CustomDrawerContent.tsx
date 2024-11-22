@@ -21,7 +21,11 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
     // Log cleared keys to confirm
     const keys = await AsyncStorage.getAllKeys();
     console.log("lgout **", keys);
-    props.navigation.navigate("Login");
+    props.navigation.reset({
+      index: 0,
+      routes: [{ name: "Login" }], // Replace 'Login' with your login screen name
+    });
+    // props.navigation.navigate("Login");
   };
   const checkStates = async () => {
     const rolex = await AsyncStorage.getItem("role");
