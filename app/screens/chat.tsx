@@ -66,6 +66,7 @@ const ChatScreen = () => {
         alert("The driver hasn't accepted the negotiations price yet");
       }
     } catch (error) {
+      alert("You dont ahve active order");
       console.log(error);
     }
   };
