@@ -15,6 +15,7 @@ import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { NavigationContainer } from "@react-navigation/native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import CheckDriverScreen from "./screens/checkDriver";
+import HistoryScreen from "./screens/history";
 
 // Ignore all log notifications:
 LogBox.ignoreAllLogs(true);
@@ -47,6 +48,11 @@ const AppDrawer: React.FC = () => (
       name="Request"
       component={OrdersScreen}
       options={{ headerShown: false }}
+    />
+    <Drawer.Screen
+      name="History"
+      component={HistoryScreen}
+      options={{ headerShown: true }}
     />
     <Drawer.Screen
       name="Orders"
