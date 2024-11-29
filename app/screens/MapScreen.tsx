@@ -22,6 +22,8 @@ import * as Location from "expo-location";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import PlaceOrder from "../(modal)/placeOrder";
 import Spinner from "react-native-loading-spinner-overlay";
+import { useNavigation } from "@react-navigation/native";
+import { post } from "@/services/apiService";
 
 const MapScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -42,6 +44,7 @@ const MapScreen: React.FC = () => {
   const [state, setState] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
   const [test, setTest] = useState(false);
+  const navigation = useNavigation();
   useEffect(() => {
     console.log("screena", "map screen");
     const requestLocationPermission = async () => {
@@ -116,6 +119,34 @@ const MapScreen: React.FC = () => {
       });
       console.log("new destination_", destination);
     })();
+
+    const fetchLocation = async () => {
+      try {
+        const position = {
+          driverId: 22,
+          shipmentId: 251,
+          latitude: location.latitude,
+          longitude: location.longitude,
+          waypoint: "app",
+        };
+        const url = `api/Driver/upsert-driver-position`;
+        const response = await post(url, position);
+        const { latitude, longitude } = response.driverPosition;
+
+        console.log(response);
+      } catch (err) {
+        //setError('Failed to fetch location');
+        console.error(err);
+      }
+    };
+    if (role == "driver") {
+      // Polling every 5 seconds
+      fetchLocation();
+      const interval = setInterval(fetchLocation, 10000);
+
+      // Cleanup interval on unmount
+      return () => clearInterval(interval);
+    }
   }, []);
 
   const checkStatex = async () => {

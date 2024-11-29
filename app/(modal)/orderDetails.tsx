@@ -65,7 +65,7 @@ const OrderDetailsModal: React.FC<ModalProps> = ({
       if (results) {
         alert("Thanks for your order!");
         onClose();
-        navigation.navigate("Map");
+        navigation.navigate("TrackDriver");
       }
     } catch (error) {
       console.error(error);

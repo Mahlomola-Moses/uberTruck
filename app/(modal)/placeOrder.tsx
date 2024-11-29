@@ -98,6 +98,10 @@ const PlaceOrder: React.FC<PlaceOrderProps> = ({ visible, onClose }) => {
         if (rs.hasDriver) {
           clearInterval(interval);
           setDriverId(rs?.shipmentTransit?.driverId);
+          await AsyncStorage.setItem(
+            "order_ship_driver",
+            JSON.stringify(rs?.shipmentTransit?.driverId)
+          );
           showAlert();
           setLoading(false);
 

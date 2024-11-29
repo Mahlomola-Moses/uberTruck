@@ -16,6 +16,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import CheckDriverScreen from "./screens/checkDriver";
 import HistoryScreen from "./screens/history";
+import TrackScreen from "./screens/TrackScreen";
 
 // Ignore all log notifications:
 LogBox.ignoreAllLogs(true);
@@ -69,6 +70,11 @@ const AppDrawer: React.FC = () => (
       name="CheckDriver"
       component={CheckDriverScreen}
       options={{ headerShown: false }}
+    />
+    <Drawer.Screen
+      name="TrackDriver"
+      component={TrackScreen}
+      options={{ headerShown: true }}
     />
     {/* Add more screens to the drawer here if needed */}
   </Drawer.Navigator>

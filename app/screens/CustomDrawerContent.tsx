@@ -120,11 +120,20 @@ const CustomDrawerContent: React.FC<DrawerContentComponentProps> = (props) => {
       {role != "driver" && (
         <View style={{ flex: 1, justifyContent: "flex-end" }}>
           <DrawerItem
+            label="Track driver"
+            onPress={() => props.navigation.navigate("TrackDriver")}
+          />
+        </View>
+      )}
+      {role != "driver" && (
+        <View style={{ flex: 1, justifyContent: "flex-end" }}>
+          <DrawerItem
             label="History"
             onPress={() => props.navigation.navigate("History")}
           />
         </View>
       )}
+
       <View style={{ flex: 1, justifyContent: "flex-end" }}>
         <DrawerItem label="Logout" onPress={handleLogout} />
       </View>
