@@ -47,6 +47,13 @@ Ensure you have the following installed:
 
  The backend will be available at `http://localhost:35050`  
  The frontend will be accessible at `http://localhost:4200` 
+ 
+### Auto-generated user for the first login
+ `Email: superadmin@yopmail.com`
+ `Password: string`
+
+### Customer feedback link
+  `http://localhost:4200/feedback`
 
 ---
 
@@ -91,17 +98,4 @@ To access protected endpoints, you need to authenticate and obtain a token:
    - **PUT /users/:id** – Update user details  
    - **DELETE /users/:id** – Remove a user  
 
----
 
-## Contributing  
-1. Fork the repository  
-2. Create a new feature branch:  
-   ```bash
-   git checkout -b feature-branch
-   ```  
-3. Commit changes and push to GitHub  
-
----
-
-## License  
-This project is licensed under [MIT License](LICENSE).  
